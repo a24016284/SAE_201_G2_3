@@ -1,4 +1,4 @@
-package fr.amu.iut.exercice10;
+package bomberman;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -16,8 +16,10 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         try {
-            BorderPane root = FXMLLoader.load(getClass().getClassLoader().getResource("exercice10/BomberMan.fxml"));
-            stage.setScene(new Scene(root));
+            BorderPane root = FXMLLoader.load(getClass().getResource("/bomberman/BomberMan.fxml"));
+            double largeur = 1160;
+            double longueur = 440;
+            stage.setScene(new Scene(root, largeur, longueur));
             stage.setTitle("Bomberman | GAME");
             stage.show();
         } catch (Exception e) {

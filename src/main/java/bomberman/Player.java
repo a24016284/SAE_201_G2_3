@@ -1,4 +1,4 @@
-package fr.amu.iut.exercice10;
+package bomberman;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -15,7 +15,7 @@ public class Player extends ImageView {
         this.gridY = gridY;
 
         // Charge l'image du joueur
-        Image playerImage = new Image(getClass().getResourceAsStream("/exercice10/images/player.png"));
+        Image playerImage = new Image(getClass().getResourceAsStream("/bomberman/images/player.png"));
         setImage(playerImage);
         setFitWidth(TILE_SIZE);
         setFitHeight(TILE_SIZE);

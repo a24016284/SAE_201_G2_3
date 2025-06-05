@@ -1,4 +1,4 @@
-package fr.amu.iut.exercice10;
+package bomberman;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -51,9 +51,9 @@ public class GameMap {
     }
 
     private void drawMap() {
-        Image wallImage = new Image(getClass().getResourceAsStream("/exercice10/images/wall.png"));
-        Image obstacleImage = new Image(getClass().getResourceAsStream("/exercice10/images/obstacle.png"));
-        Image floorImage = new Image(getClass().getResourceAsStream("/exercice10/images/floor.png"));
+        Image wallImage = new Image(getClass().getResourceAsStream("/bomberman/images/wall.png"));
+        Image obstacleImage = new Image(getClass().getResourceAsStream("/bomberman/images/obstacle.png"));
+        Image floorImage = new Image(getClass().getResourceAsStream("/bomberman/images/floor.png"));
 
         for (int y = 0; y < MAP.length; y++) {
             for (int x = 0; x < MAP[y].length(); x++) {
@@ -78,7 +78,7 @@ public class GameMap {
     }
 
     private void addEnemies(int numberOfEnemies) {
-        Image enemyImage = new Image(getClass().getResourceAsStream("/exercice10/images/enemy.png"));
+        Image enemyImage = new Image(getClass().getResourceAsStream("/bomberman/images/enemy.png"));
         Random random = new Random();
         int added = 0;
 
@@ -107,7 +107,7 @@ public class GameMap {
     }
 
     private void destroyNearbyObstacles(int centerX, int centerY) {
-        Image floorImage = new Image(getClass().getResourceAsStream("/exercice10/images/floor.png"));
+        Image floorImage = new Image(getClass().getResourceAsStream("/bomberman/images/floor.png"));
 
         for (int dy = -1; dy <= 1; dy++) {
             for (int dx = -1; dx <= 1; dx++) {

@@ -1,4 +1,4 @@
-package fr.amu.iut.exercice10;
+package bomberman;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -6,7 +6,7 @@ import javafx.scene.image.ImageView;
 public class Bomb extends ImageView {
 
     public Bomb(int gridX, int gridY) {
-        Image bombImage = new Image(getClass().getResourceAsStream("/exercice10/images/Bombe.png"));
+        Image bombImage = new Image(getClass().getResourceAsStream("/bomberman/images/Bombe.png"));
         this.setImage(bombImage);
         this.setFitWidth(Player.TILE_SIZE);
         this.setFitHeight(Player.TILE_SIZE);

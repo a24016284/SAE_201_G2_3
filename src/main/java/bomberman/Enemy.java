@@ -1,4 +1,4 @@
-package fr.amu.iut.exercice10;
+package bomberman;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
