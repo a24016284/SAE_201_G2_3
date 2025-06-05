@@ -1,0 +1,60 @@
+package fr.amu.iut.exercice10;
+
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.util.Duration;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class Enemy extends ImageView {
+    private int x;
+    private int y;
+    private static final int TILE_SIZE = Player.TILE_SIZE;
+
+    public Enemy(int gridX, int gridY, Image enemyImage) {
+        super(enemyImage);
+        this.x = gridX;
+        this.y = gridY;
+        setFitWidth(TILE_SIZE);
+        setFitHeight(TILE_SIZE);
+        setTranslateX(x * TILE_SIZE);
+        setTranslateY(y * TILE_SIZE);
+
+        startMoving();
+    }
+
+    private void startMoving() {
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.5), e -> moveRandomly()));
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
+    }
+
+    private void moveRandomly() {
+        int[][] directions = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
+        List<int[]> validMoves = new ArrayList<>();
+
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+
+            if (newY >= 0 && newY < GameMap.MAP.length &&
+                    newX >= 0 && newX < GameMap.MAP[newY].length() &&
+                    GameMap.MAP[newY].charAt(newX) == ' ') {
+                validMoves.add(dir);
+            }
+        }
+
+        if (!validMoves.isEmpty()) {
+            int[] move = validMoves.get(new Random().nextInt(validMoves.size()));
+            x += move[0];
+            y += move[1];
+            setTranslateX(x * TILE_SIZE);
+            setTranslateY(y * TILE_SIZE);
+        }
+    }
+}
