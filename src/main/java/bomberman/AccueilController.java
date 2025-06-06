@@ -33,7 +33,7 @@ public class AccueilController {
     private ImageView imageView;
 
     private Timeline countdown;
-    private int remainingTime = 20;
+    private int remainingTime = 90;
 
 
     @FXML private Label choixJoueur;
@@ -67,7 +67,7 @@ public class AccueilController {
             topBar.setStyle("-fx-background-color: orange; -fx-padding: 10;");
             topBar.setAlignment(javafx.geometry.Pos.CENTER);
 
-            Label countdownLabel = new Label("00:20");
+            Label countdownLabel = new Label("01:30");
             countdownLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
             topBar.getChildren().add(countdownLabel);
             root.setTop(topBar);
