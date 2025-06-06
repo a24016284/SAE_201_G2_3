@@ -1,44 +1,39 @@
 package bomberman;
 
-import javafx.scene.image.Image;
+import javafx.animation.TranslateTransition;
 import javafx.scene.image.ImageView;
+import javafx.util.Duration;
 
 public class Player extends ImageView {
-
+    private int x;
+    private int y;
     public static final int TILE_SIZE = 40;
 
-    private int gridX;
-    private int gridY;
-
     public Player(int gridX, int gridY) {
-        this.gridX = gridX;
-        this.gridY = gridY;
-
-        // Charge l'image du joueur
-        Image playerImage = new Image(getClass().getResourceAsStream("/bomberman/images/player.png"));
-        setImage(playerImage);
+        super(new javafx.scene.image.Image(Player.class.getResourceAsStream("/bomberman/images/player.png")));
+        this.x = gridX;
+        this.y = gridY;
         setFitWidth(TILE_SIZE);
         setFitHeight(TILE_SIZE);
-
-        updatePosition();
-    }
-
-    public void moveTo(int x, int y) {
-        this.gridX = x;
-        this.gridY = y;
-        updatePosition();
-    }
-
-    private void updatePosition() {
-        setX(gridX * TILE_SIZE);
-        setY(gridY * TILE_SIZE);
+        setTranslateX(x * TILE_SIZE);
+        setTranslateY(y * TILE_SIZE);
     }
 
     public int getGridX() {
-        return gridX;
+        return x;
     }
 
     public int getGridY() {
-        return gridY;
+        return y;
+    }
+
+    public void moveToAnimated(int newX, int newY) {
+        this.x = newX;
+        this.y = newY;
+
+        TranslateTransition transition = new TranslateTransition(Duration.millis(200), this);
+        transition.setToX(newX * TILE_SIZE);
+        transition.setToY(newY * TILE_SIZE);
+        transition.play();
     }
 }

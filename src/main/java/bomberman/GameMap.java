@@ -231,7 +231,7 @@ public class GameMap {
                         return;
                     }
                 }
-                player.moveTo(newX, newY);
+                player.moveToAnimated(newX, newY);
             }
         }
     }
