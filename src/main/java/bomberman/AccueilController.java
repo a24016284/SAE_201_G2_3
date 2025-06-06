@@ -3,6 +3,8 @@ package bomberman;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -33,10 +35,22 @@ public class AccueilController {
     private Timeline countdown;
     private int remainingTime = 20;
 
+
+    @FXML private Label choixJoueur;
+    @FXML private Button perso1, perso2, perso3, perso4;
+
+    private int joueurActuel = 1;
+
+    // Propriétés observables pour le binding
+    private final BooleanProperty joueur1Choisi = new SimpleBooleanProperty(false);
+    private final BooleanProperty joueur2Choisi = new SimpleBooleanProperty(false);
+
+
     @FXML
     public void initialize() {
         playButton.setOnAction(this::lancerJeu);
         exitButton.setOnAction(e -> Platform.exit());
+        playButton.disableProperty().bind(joueur1Choisi.not().or(joueur2Choisi.not()));
     }
 
     private void lancerJeu(ActionEvent event) {
@@ -94,4 +108,25 @@ public class AccueilController {
             Platform.exit(); // Ferme le jeu
         });
     }
+
+
+    @FXML
+    private void handleChoix(ActionEvent event) {
+        Button boutonClique = (Button) event.getSource();
+
+        // Empêche le bouton d’être choisi à nouveau
+        boutonClique.setDisable(true);
+        boutonClique.setVisible(false);
+
+        if (joueurActuel == 1) {
+            joueur1Choisi.set(true);
+            joueurActuel = 2;
+            choixJoueur.setText("A toi joueur 2 :");
+        } else if (joueurActuel == 2) {
+            joueur2Choisi.set(true);
+            choixJoueur.setText("Les deux joueurs ont choisi !");
+        }
+    }
+
+
 }
