@@ -63,7 +63,7 @@ public class AccueilController {
             controller.setGameTimer(timeline); // Ajoute cette ligne pour lier le timer au contrôleur
 
             double largeur = 1160;
-            double longueur = 440;
+            double longueur = 480;
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             Scene scene = new Scene(root, largeur, longueur);
             stage.setScene(scene);
