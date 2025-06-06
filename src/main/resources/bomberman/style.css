@@ -1,0 +1,25 @@
+
+
+
+.button {
+    -fx-font-size: 16px;
+    -fx-background-color: #ff6600;
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+}
+
+.button:hover {
+    -fx-background-color: #ff8533;
+}
+
+.label {
+    -fx-text-fill: #333333;
+}
+
+
+.label-title {
+    -fx-font-family: "Arial Black";
+    -fx-font-size: 36px;
+    -fx-text-fill: linear-gradient(from 0% 0% to 100% 100%, #ffcc00, #ff6600);
+    -fx-effect: dropshadow( gaussian , blue , 5, 0.5 , 1 , 1 );
+}

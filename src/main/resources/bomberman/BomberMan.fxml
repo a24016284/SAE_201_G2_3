@@ -1,10 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.Pane?>
-
 <?import javafx.scene.layout.BorderPane?>
-<BorderPane fx:id="gamePane"
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:controller="bomberman.AccueilController"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="bomberman.GameMap"
-            prefWidth="520.0" prefHeight="280.0">
+            xmlns="http://javafx.com/javafx/8"
+            stylesheets="@style.css"
+            prefWidth="600"
+            prefHeight="400">
+
+
+
+
+    <center>
+        <VBox fx:id="gamePane"
+              spacing="20"
+              alignment="CENTER">
+            <padding>
+                <Insets top="40" right="20" bottom="40" left="20"/>
+            </padding>
+
+            <Label text="BOMBERMAN" styleClass="label-title"/>
+
+
+            <Label text=" ACH Sofia ARFI Maxime CANTOR Romain NEPOTU Gheorghe"/>
+
+            <Button fx:id="playButton" text="Jouer" prefWidth="200"/>
+            <Button fx:id="exitButton" text="Quitter" prefWidth="200"/>
+        </VBox>
+    </center>
+
 </BorderPane>

@@ -1,6 +1,7 @@
 package bomberman;
 
 import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
@@ -36,6 +37,8 @@ public class GameMap {
     @FXML
     private Pane gamePane;
 
+    private boolean isPaused = false;
+
     private final List<Enemy> enemies = new ArrayList<>();
     private final List<Bomb> bombs = new ArrayList<>();
 
@@ -50,6 +53,8 @@ public class GameMap {
     // Cooldown pour les bombes
     private long lastBombTime = 0;
     private static final long BOMB_COOLDOWN = 1500;
+
+    private Timeline gameTimer;
 
     @FXML
     public void initialize() {
@@ -110,6 +115,32 @@ public class GameMap {
                 gamePane.getChildren().add(enemy);
                 added++;
             }
+        }
+    }
+
+
+
+    public void setGameTimer(Timeline gameTimer) {
+        this.gameTimer = gameTimer;
+    }
+
+    public void pauseGame() {
+        isPaused = true;
+        for (Enemy enemy : enemies) {
+            enemy.pauseMovement();
+        }
+        if (gameTimer != null) {
+            gameTimer.pause();
+        }
+    }
+
+    public void resumeGame() {
+        isPaused = false;
+        for (Enemy enemy : enemies) {
+            enemy.resumeMovement();
+        }
+        if (gameTimer != null) {
+            gameTimer.play();
         }
     }
 
@@ -198,7 +229,36 @@ public class GameMap {
         cleanup.play();
     }
 
+
+    public boolean isPaused() {
+        return isPaused;
+    }
+
     private void handleKeyPressed(KeyEvent event) {
+
+        // 🎮 Pause avec Ctrl + Espace
+        if (event.getCode() == javafx.scene.input.KeyCode.SPACE && event.isControlDown()) {
+            if (isPaused) {
+                resumeGame();
+            } else {
+                pauseGame();
+                Platform.runLater(() -> {
+                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+                    alert.setTitle("Pause");
+                    alert.setHeaderText(null);
+                    alert.setContentText("⏸️ Le jeu est en pause.\nAppuyez sur Ctrl + Espace ou fermez cette boîte pour reprendre.");
+                    alert.showAndWait();  // Bloque jusqu'à fermeture
+                    resumeGame();         // 🔁 Reprend le jeu automatiquement après fermeture
+                });
+            }
+            return;
+        }
+
+
+        if (isPaused || gameOverTriggered) {
+            return; // ⛔ Bloque les actions si en pause ou terminé
+        }
+
         int newX = player.getGridX();
         int newY = player.getGridY();
 

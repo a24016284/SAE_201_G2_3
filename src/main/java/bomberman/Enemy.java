@@ -20,6 +20,8 @@ public class Enemy extends ImageView {
 
     private final GameMap gameMap;
 
+    private Timeline movementTimeline;
+
     public Enemy(int gridX, int gridY, Image enemyImage, GameMap gameMap) {
         super(enemyImage);
         this.gameMap = gameMap;
@@ -42,12 +44,28 @@ public class Enemy extends ImageView {
 
 
     private void startMoving() {
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.5), e -> moveRandomly()));
-        timeline.setCycleCount(Animation.INDEFINITE);
-        timeline.play();
+        movementTimeline = new Timeline(new KeyFrame(Duration.seconds(0.5), e -> moveRandomly()));
+        movementTimeline.setCycleCount(Animation.INDEFINITE);
+        movementTimeline.play();
+    }
+
+    public void pauseMovement() {
+        if (movementTimeline != null) {
+            movementTimeline.pause();
+        }
+    }
+
+    public void resumeMovement() {
+        if (movementTimeline != null) {
+            movementTimeline.play();
+        }
     }
 
     private void moveRandomly() {
+
+        if (gameMap.isPaused()) return;
+
+
         int[][] directions = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
         List<int[]> validMoves = new ArrayList<>();
 
