@@ -46,7 +46,6 @@ public class GameMap {
 
     private int activeBombs = 0;
     //a supprimer
-    private int remainingBombs = 5;
 
     // Cooldown pour les bombes
     private long lastBombTime = 0;
@@ -121,14 +120,7 @@ public class GameMap {
             return;
         }
 
-        if (remainingBombs <= 0) {
-            System.out.println("⚠️ Plus de bombes disponibles !");
-            return;
-        }
-
         lastBombTime = currentTime;
-        remainingBombs--;
-        System.out.println("- Nombre restant de Bombes : " + remainingBombs);
 
         Bomb bomb = new Bomb(x, y);
         bombs.add(bomb);
@@ -142,6 +134,7 @@ public class GameMap {
         });
         explosionDelay.play();
     }
+
 
     private void destroyNearbyObstacles(int centerX, int centerY) {
         Image floorImage = new Image(getClass().getResourceAsStream("/bomberman/images/floor.png"));
