@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-
 public class GameMap {
 
     static final int TILE_SIZE = Player.TILE_SIZE;
@@ -37,28 +36,21 @@ public class GameMap {
     @FXML
     private Pane gamePane;
 
-//    Liste Ennemies et Bombe
     private final List<Enemy> enemies = new ArrayList<>();
     private final List<Bomb> bombs = new ArrayList<>();
 
-//    Création joueur
     private Player player;
     private int playerX = 1;
     private int playerY = 1;
     private boolean gameOverTriggered = false;
 
-    //nb limite de bombes
     private int activeBombs = 0;
-    private int remainingBombs = 10;
+    //a supprimer
+    private int remainingBombs = 5;
 
-    public boolean isBombAt(int x, int y) {
-        for (Bomb bomb : bombs) {
-            if (bomb.getGridX() == x && bomb.getGridY() == y) {
-                return true;
-            }
-        }
-        return false;
-    }
+    // Cooldown pour les bombes
+    private long lastBombTime = 0;
+    private static final long BOMB_COOLDOWN = 1500;
 
     @FXML
     public void initialize() {
@@ -109,11 +101,8 @@ public class GameMap {
             int x = random.nextInt(MAP[0].length());
 
             char tile = MAP[y].charAt(x);
-
-            // On ne veut pas de mur, ni d'obstacle, ni de joueur à cet endroit
             boolean isPlayerPos = (x == playerX && y == playerY);
             boolean isTileEmpty = (tile == ' ');
-
             boolean alreadyEnemy = enemies.stream().anyMatch(e -> e.getGridX() == x && e.getGridY() == y);
 
             if (isTileEmpty && !isPlayerPos && !alreadyEnemy) {
@@ -125,45 +114,42 @@ public class GameMap {
         }
     }
 
-
     private void placeBomb(int x, int y) {
-
-        if (remainingBombs <= 0) {
-            System.out.println("VIDE!");
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastBombTime < BOMB_COOLDOWN) {
+            System.out.println("⏳ Attendez encore " + ((BOMB_COOLDOWN - (currentTime - lastBombTime)) / 1000.0) + " secondes !");
             return;
         }
 
+        if (remainingBombs <= 0) {
+            System.out.println("⚠️ Plus de bombes disponibles !");
+            return;
+        }
+
+        lastBombTime = currentTime;
         remainingBombs--;
         System.out.println("- Nombre restant de Bombes : " + remainingBombs);
 
         Bomb bomb = new Bomb(x, y);
-        bombs.add(bomb); // Ajoute la bombe à la liste
+        bombs.add(bomb);
         gamePane.getChildren().add(bomb);
-
 
         PauseTransition explosionDelay = new PauseTransition(Duration.seconds(2));
         explosionDelay.setOnFinished(e -> {
             gamePane.getChildren().remove(bomb);
-            bombs.remove(bomb); // enlève la bombe de la liste
+            bombs.remove(bomb);
             destroyNearbyObstacles(x, y);
         });
-
         explosionDelay.play();
     }
-
-
-
 
     private void destroyNearbyObstacles(int centerX, int centerY) {
         Image floorImage = new Image(getClass().getResourceAsStream("/bomberman/images/floor.png"));
         Image explosionImage = new Image(getClass().getResourceAsStream("/bomberman/images/explosion.png"));
         List<ImageView> explosionEffects = new ArrayList<>();
 
-        // Rayon d'explosion dans les 4 directions + centre
         int[][] directions = {
-                {0, 0}, // centre
-                {1, 0}, {-1, 0}, // droite / gauche
-                {0, 1}, {0, -1}  // bas / haut
+                {0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}
         };
 
         for (int[] dir : directions) {
@@ -173,7 +159,6 @@ public class GameMap {
             if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT) {
                 char tile = MAP[y].charAt(x);
 
-                // Détruit les obstacles
                 if (tile == '*') {
                     StringBuilder row = new StringBuilder(MAP[y]);
                     row.setCharAt(x, ' ');
@@ -192,7 +177,6 @@ public class GameMap {
                     gamePane.getChildren().add(0, floor);
                 }
 
-                //  Ajoute l'effet d'explosion
                 ImageView explosion = new ImageView(explosionImage);
                 explosion.setFitWidth(TILE_SIZE);
                 explosion.setFitHeight(TILE_SIZE);
@@ -201,7 +185,6 @@ public class GameMap {
                 gamePane.getChildren().add(explosion);
                 explosionEffects.add(explosion);
 
-                // Tue les ennemis touchés
                 List<Enemy> enemiesToRemove = new ArrayList<>();
                 for (Enemy enemy : enemies) {
                     if (enemy.getGridX() == x && enemy.getGridY() == y) {
@@ -211,86 +194,61 @@ public class GameMap {
                 }
                 enemies.removeAll(enemiesToRemove);
 
-                //  Vérifie si le player est dans le rayon
                 if (player.getGridX() == x && player.getGridY() == y && !gameOverTriggered) {
                     showExplosionKilledMessage();
                 }
             }
         }
 
-        //  Retire l'effet d'explosion après 300 ms
         PauseTransition cleanup = new PauseTransition(Duration.millis(300));
         cleanup.setOnFinished(e -> gamePane.getChildren().removeAll(explosionEffects));
         cleanup.play();
     }
-
 
     private void handleKeyPressed(KeyEvent event) {
         int newX = player.getGridX();
         int newY = player.getGridY();
 
         switch (event.getCode()) {
-            case Z:
-            case UP:
-                newY--;
-                break;
-            case S:
-            case DOWN:
-                newY++;
-                break;
-            case Q:
-            case LEFT:
-                newX--;
-                break;
-            case D:
-            case RIGHT:
-                newX++;
-                break;
-            case SPACE:
+            case Z, UP -> newY--;
+            case S, DOWN -> newY++;
+            case Q, LEFT -> newX--;
+            case D, RIGHT -> newX++;
+            case SPACE -> {
                 placeBomb(player.getGridX(), player.getGridY());
                 return;
-            default:
+            }
+            default -> {
                 return;
+            }
         }
 
         if (newX >= 0 && newX < MAP_WIDTH && newY >= 0 && newY < MAP_HEIGHT) {
             char destination = MAP[newY].charAt(newX);
             if (destination != '#' && destination != '*') {
-
-                //  Vérifie d'abord si une bombe est sur cette case
                 for (Bomb bomb : bombs) {
                     if (bomb.getGridX() == newX && bomb.getGridY() == newY) {
-                        return; // Le joueur ne peut pas avancer sur une bombe
-                    }
-                }
-
-                for (Enemy enemy : enemies) {
-                    if (enemy.getGridX() == newX && enemy.getGridY() == newY) {
-                        gameOver();  // le joueur se tue en allant sur l’ennemi
+                        showBombKilledMessage();
                         return;
                     }
                 }
-                for (Bomb bomb : bombs) {
-                    if (bomb.getGridX() == newX && bomb.getGridY() == newY) {
-                        return; // Bloque le déplacement sur une bombe
+                for (Enemy enemy : enemies) {
+                    if (enemy.getGridX() == newX && enemy.getGridY() == newY) {
+                        gameOver();
+                        return;
                     }
                 }
-
-                // Ensuite seulement, on déplace le joueur
                 player.moveTo(newX, newY);
             }
         }
     }
-
 
     public Player getPlayer() {
         return player;
     }
 
     public void gameOver() {
-        if (gameOverTriggered) {
-            return; // déjà appelé, on ne fait rien
-        }
+        if (gameOverTriggered) return;
         gameOverTriggered = true;
 
         System.out.println("Game Over!");
@@ -302,12 +260,9 @@ public class GameMap {
             alert.setHeaderText(null);
             alert.setContentText("Vous avez été touché par un ennemi !");
             alert.showAndWait();
-
             Platform.exit();
         });
     }
-
-
 
     public boolean isGameOverTriggered() {
         return gameOverTriggered;
@@ -316,9 +271,9 @@ public class GameMap {
     public void setGameOverTriggered(boolean gameOverTriggered) {
         this.gameOverTriggered = gameOverTriggered;
     }
+
     private void showBombKilledMessage() {
         if (gameOverTriggered) return;
-
         gameOverTriggered = true;
 
         Platform.runLater(() -> {
@@ -327,14 +282,12 @@ public class GameMap {
             alert.setHeaderText(null);
             alert.setContentText("Vous avez été tué par une BOMBE !");
             alert.showAndWait();
-
             Platform.exit();
         });
-
     }
+
     private void showExplosionKilledMessage() {
         if (gameOverTriggered) return;
-
         gameOverTriggered = true;
 
         Platform.runLater(() -> {
@@ -343,10 +296,7 @@ public class GameMap {
             alert.setHeaderText(null);
             alert.setContentText("Vous avez été tué par une EXPLOSION !");
             alert.showAndWait();
-
             Platform.exit();
         });
     }
-
-
 }
