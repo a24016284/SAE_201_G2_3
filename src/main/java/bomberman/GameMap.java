@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+
 public class GameMap {
 
     static final int TILE_SIZE = Player.TILE_SIZE;
@@ -48,8 +49,16 @@ public class GameMap {
 
     //nb limite de bombes
     private int activeBombs = 0;
-    private int remainingBombs = 5;
+    private int remainingBombs = 10;
 
+    public boolean isBombAt(int x, int y) {
+        for (Bomb bomb : bombs) {
+            if (bomb.getGridX() == x && bomb.getGridY() == y) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @FXML
     public void initialize() {
@@ -118,8 +127,9 @@ public class GameMap {
 
 
     private void placeBomb(int x, int y) {
+
         if (remainingBombs <= 0) {
-            System.out.println("⚠️ Plus de bombes disponibles !");
+            System.out.println("VIDE!");
             return;
         }
 
@@ -127,13 +137,17 @@ public class GameMap {
         System.out.println("- Nombre restant de Bombes : " + remainingBombs);
 
         Bomb bomb = new Bomb(x, y);
+        bombs.add(bomb); // Ajoute la bombe à la liste
         gamePane.getChildren().add(bomb);
+
 
         PauseTransition explosionDelay = new PauseTransition(Duration.seconds(2));
         explosionDelay.setOnFinished(e -> {
             gamePane.getChildren().remove(bomb);
+            bombs.remove(bomb); // enlève la bombe de la liste
             destroyNearbyObstacles(x, y);
         });
+
         explosionDelay.play();
     }
 
@@ -178,7 +192,7 @@ public class GameMap {
                     gamePane.getChildren().add(0, floor);
                 }
 
-                // 🔥 Ajoute l'effet d'explosion
+                //  Ajoute l'effet d'explosion
                 ImageView explosion = new ImageView(explosionImage);
                 explosion.setFitWidth(TILE_SIZE);
                 explosion.setFitHeight(TILE_SIZE);
@@ -187,7 +201,7 @@ public class GameMap {
                 gamePane.getChildren().add(explosion);
                 explosionEffects.add(explosion);
 
-                // 💀 Tue les ennemis touchés
+                // Tue les ennemis touchés
                 List<Enemy> enemiesToRemove = new ArrayList<>();
                 for (Enemy enemy : enemies) {
                     if (enemy.getGridX() == x && enemy.getGridY() == y) {
@@ -197,14 +211,14 @@ public class GameMap {
                 }
                 enemies.removeAll(enemiesToRemove);
 
-                // 💀 Vérifie si le player est dans le rayon
+                //  Vérifie si le player est dans le rayon
                 if (player.getGridX() == x && player.getGridY() == y && !gameOverTriggered) {
                     showExplosionKilledMessage();
                 }
             }
         }
 
-        // 🔄 Retire l'effet d'explosion après 300 ms
+        //  Retire l'effet d'explosion après 300 ms
         PauseTransition cleanup = new PauseTransition(Duration.millis(300));
         cleanup.setOnFinished(e -> gamePane.getChildren().removeAll(explosionEffects));
         cleanup.play();
@@ -243,20 +257,24 @@ public class GameMap {
             char destination = MAP[newY].charAt(newX);
             if (destination != '#' && destination != '*') {
 
-                // 🔥 Vérifie d'abord si une bombe est sur cette case
+                //  Vérifie d'abord si une bombe est sur cette case
                 for (Bomb bomb : bombs) {
                     if (bomb.getGridX() == newX && bomb.getGridY() == newY) {
-                        showBombKilledMessage(); // mort immédiate
-                        return;
+                        return; // Le joueur ne peut pas avancer sur une bombe
                     }
                 }
+
                 for (Enemy enemy : enemies) {
                     if (enemy.getGridX() == newX && enemy.getGridY() == newY) {
                         gameOver();  // le joueur se tue en allant sur l’ennemi
                         return;
                     }
                 }
-
+                for (Bomb bomb : bombs) {
+                    if (bomb.getGridX() == newX && bomb.getGridY() == newY) {
+                        return; // Bloque le déplacement sur une bombe
+                    }
+                }
 
                 // Ensuite seulement, on déplace le joueur
                 player.moveTo(newX, newY);

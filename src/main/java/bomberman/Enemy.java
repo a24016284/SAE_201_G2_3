@@ -60,6 +60,7 @@ public class Enemy extends ImageView {
                     GameMap.MAP[newY].charAt(newX) == ' ') {
                 validMoves.add(dir);
             }
+
         }
 
         if (!validMoves.isEmpty()) {
@@ -80,7 +81,6 @@ public class Enemy extends ImageView {
         if (x == gameMap.getPlayer().getGridX() && y == gameMap.getPlayer().getGridY()) {
             gameMap.gameOver();
         }
-
 
     }
 
