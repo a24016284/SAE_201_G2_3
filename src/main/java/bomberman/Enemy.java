@@ -10,23 +10,36 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import javafx.animation.TranslateTransition;
+
 
 public class Enemy extends ImageView {
     private int x;
     private int y;
     private static final int TILE_SIZE = Player.TILE_SIZE;
 
-    public Enemy(int gridX, int gridY, Image enemyImage) {
+    private final GameMap gameMap;
+
+    public Enemy(int gridX, int gridY, Image enemyImage, GameMap gameMap) {
         super(enemyImage);
+        this.gameMap = gameMap;
         this.x = gridX;
         this.y = gridY;
         setFitWidth(TILE_SIZE);
         setFitHeight(TILE_SIZE);
         setTranslateX(x * TILE_SIZE);
         setTranslateY(y * TILE_SIZE);
-
         startMoving();
     }
+
+    public int getGridX() {
+        return x;
+    }
+
+    public int getGridY() {
+        return y;
+    }
+
 
     private void startMoving() {
         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.5), e -> moveRandomly()));
@@ -51,10 +64,24 @@ public class Enemy extends ImageView {
 
         if (!validMoves.isEmpty()) {
             int[] move = validMoves.get(new Random().nextInt(validMoves.size()));
-            x += move[0];
-            y += move[1];
-            setTranslateX(x * TILE_SIZE);
-            setTranslateY(y * TILE_SIZE);
+            int targetX = x + move[0];
+            int targetY = y + move[1];
+
+            x = targetX;
+            y = targetY;
+
+            TranslateTransition transition = new TranslateTransition(Duration.millis(200), this);
+            transition.setToX(x * TILE_SIZE);
+            transition.setToY(y * TILE_SIZE);
+            transition.play();
+
         }
+        // Fin de moveRandomly
+        if (x == gameMap.getPlayer().getGridX() && y == gameMap.getPlayer().getGridY()) {
+            gameMap.gameOver();
+        }
+
+
     }
+
 }
