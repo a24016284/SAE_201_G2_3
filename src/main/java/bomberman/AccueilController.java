@@ -39,6 +39,9 @@ public class AccueilController {
     @FXML private Label choixJoueur;
     @FXML private Button perso1, perso2, perso3, perso4;
 
+    private String imageJoueur1;
+    private String imageJoueur2;
+
     private int joueurActuel = 1;
 
     // Propriétés observables pour le binding

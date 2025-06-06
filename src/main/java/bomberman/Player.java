@@ -10,7 +10,7 @@ public class Player extends ImageView {
     public static final int TILE_SIZE = 40;
 
     public Player(int gridX, int gridY) {
-        super(new javafx.scene.image.Image(Player.class.getResourceAsStream("/bomberman/images/player.png")));
+        super(new javafx.scene.image.Image(Player.class.getResourceAsStream("/bomberman/images/player2.png")));
         this.x = gridX;
         this.y = gridY;
         setFitWidth(TILE_SIZE);

@@ -18,7 +18,7 @@ public class Main extends Application {
         try {
             BorderPane root = FXMLLoader.load(getClass().getResource("/bomberman/BomberMan.fxml"));
             double largeur = 1160;
-            double longueur = 440;
+            double longueur = 655;
             stage.setScene(new Scene(root, largeur, longueur));
             stage.setTitle("Bomberman | GAME");
             stage.show();
