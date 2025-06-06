@@ -46,6 +46,7 @@ public class GameMap {
     private int playerY = 1;
     private boolean gameOverTriggered = false;
 
+    //nb limite de bombes
     private int activeBombs = 0;
     private int remainingBombs = 5;
 
@@ -249,6 +250,13 @@ public class GameMap {
                         return;
                     }
                 }
+                for (Enemy enemy : enemies) {
+                    if (enemy.getGridX() == newX && enemy.getGridY() == newY) {
+                        gameOver();  // le joueur se tue en allant sur l’ennemi
+                        return;
+                    }
+                }
+
 
                 // Ensuite seulement, on déplace le joueur
                 player.moveTo(newX, newY);
