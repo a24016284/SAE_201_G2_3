@@ -147,7 +147,7 @@ public class GameMap {
     private void placeBomb(int x, int y) {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastBombTime < BOMB_COOLDOWN) {
-            System.out.println("⏳ Attendez encore " + ((BOMB_COOLDOWN - (currentTime - lastBombTime)) / 1000.0) + " secondes !");
+            System.out.println(" Attendez encore " + ((BOMB_COOLDOWN - (currentTime - lastBombTime)) / 1000.0) + " secondes !");
             return;
         }
 
@@ -246,9 +246,9 @@ public class GameMap {
                     javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
                     alert.setTitle("Pause");
                     alert.setHeaderText(null);
-                    alert.setContentText("⏸️ Le jeu est en pause.\nAppuyez sur Ctrl + Espace ou fermez cette boîte pour reprendre.");
+                    alert.setContentText(" Le jeu est en pause.\nAppuyez sur Ctrl + Espace ou fermez cette boîte pour reprendre.");
                     alert.showAndWait();  // Bloque jusqu'à fermeture
-                    resumeGame();         // 🔁 Reprend le jeu automatiquement après fermeture
+                    resumeGame();         //  Reprend le jeu automatiquement après fermeture
                 });
             }
             return;
@@ -256,7 +256,7 @@ public class GameMap {
 
 
         if (isPaused || gameOverTriggered) {
-            return; // ⛔ Bloque les actions si en pause ou terminé
+            return; // Bloque les actions si en pause ou terminé
         }
 
         int newX = player.getGridX();
@@ -352,4 +352,6 @@ public class GameMap {
             Platform.exit();
         });
     }
+
+
 }
