@@ -22,7 +22,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         try {
-            playBackgroundMusic();
+            //playBackgroundMusic();
 
             BorderPane root = FXMLLoader.load(getClass().getResource("/bomberman/BomberMan.fxml"));
             double largeur = 1160;
@@ -36,7 +36,7 @@ public class Main extends Application {
         }
     }
 
-    public static void playBackgroundMusic() {
+  /*  public static void playBackgroundMusic() {
         stopAllMusic();
 
         URL resource = Main.class.getResource("/bomberman/audio/musique.mp3");
@@ -71,5 +71,5 @@ public class Main extends Application {
     @Override
     public void stop() {
         stopAllMusic();
-    }
+    }*/
 }

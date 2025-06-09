@@ -263,10 +263,22 @@ public class GameMap {
         int newY = player.getGridY();
 
         switch (event.getCode()) {
-            case Z, UP -> newY--;
-            case S, DOWN -> newY++;
-            case Q, LEFT -> newX--;
-            case D, RIGHT -> newX++;
+            case Z, UP -> {
+                newY--;
+                player.setDirection("HAUT");
+            }
+            case S, DOWN -> {
+                newY++;
+                player.setDirection("BAS");
+            }
+            case Q, LEFT -> {
+                newX--;
+                player.setDirection("GAUCHE");
+            }
+            case D, RIGHT -> {
+                newX++;
+                player.setDirection("DROITE");
+            }
             case SPACE -> {
                 placeBomb(player.getGridX(), player.getGridY());
                 return;
@@ -274,6 +286,7 @@ public class GameMap {
             default -> {
                 return;
             }
+
         }
 
         if (newX >= 0 && newX < MAP_WIDTH && newY >= 0 && newY < MAP_HEIGHT) {
