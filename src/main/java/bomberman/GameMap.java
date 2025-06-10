@@ -157,6 +157,9 @@ public class GameMap {
     }
 
     private void destroyNearbyObstacles(int centerX, int centerY) {
+
+        Main.playExplosionSound();
+
         Image floorImage = new Image(getClass().getResourceAsStream("/bomberman/images/floor.png"));
         Image explosionImage = new Image(getClass().getResourceAsStream("/bomberman/images/explosion.png"));
         List<ImageView> explosionEffects = new ArrayList<>();

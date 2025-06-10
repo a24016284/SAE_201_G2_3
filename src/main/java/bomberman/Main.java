@@ -15,6 +15,7 @@ public class Main extends Application {
     private static MediaPlayer backgroundMusic;
     private static MediaPlayer gameOverMusic;
     private static MediaPlayer deathMusic;
+    private static MediaPlayer explosionSound;
 
     public static void main(String[] args) {
         launch(args);
@@ -45,7 +46,7 @@ public class Main extends Application {
             Media media = new Media(resource.toExternalForm());
             backgroundMusic = new MediaPlayer(media);
             backgroundMusic.setCycleCount(MediaPlayer.INDEFINITE);
-            backgroundMusic.setVolume(0.5); // Réduire le volume si nécessaire
+            backgroundMusic.setVolume(0.5);
             backgroundMusic.play();
         }
     }
@@ -71,6 +72,16 @@ public class Main extends Application {
             deathMusic = new MediaPlayer(media);
             deathMusic.setVolume(0.8);
             deathMusic.play();
+        }
+    }
+
+    public static void playExplosionSound() {
+        URL resource = Main.class.getResource("/bomberman/audio/boom(1).mp3");
+        if (resource != null) {
+            Media media = new Media(resource.toExternalForm());
+            explosionSound = new MediaPlayer(media);
+            explosionSound.setVolume(0.7);
+            explosionSound.play();
         }
     }
 
