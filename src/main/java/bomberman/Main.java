@@ -36,7 +36,7 @@ public class Main extends Application {
         }
     }
 
-  /*  public static void playBackgroundMusic() {
+    /*public static void playBackgroundMusic() {
         stopAllMusic();
 
         URL resource = Main.class.getResource("/bomberman/audio/musique.mp3");

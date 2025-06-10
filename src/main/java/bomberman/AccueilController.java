@@ -48,6 +48,9 @@ public class AccueilController {
     private final BooleanProperty joueur1Choisi = new SimpleBooleanProperty(false);
     private final BooleanProperty joueur2Choisi = new SimpleBooleanProperty(false);
 
+    public static String choixJoueur1;
+    public static String choixJoueur2;
+
 
     @FXML
     public void initialize() {
@@ -125,9 +128,11 @@ public class AccueilController {
             joueur1Choisi.set(true);
             joueurActuel = 2;
             choixJoueur.setText("A toi joueur 2 :");
+            choixJoueur1 = boutonClique.getText();
         } else if (joueurActuel == 2) {
             joueur2Choisi.set(true);
             choixJoueur.setText("Les deux joueurs ont choisi !");
+            choixJoueur2 = boutonClique.getText();
         }
     }
 

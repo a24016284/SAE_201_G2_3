@@ -12,23 +12,37 @@ public class Player extends ImageView {
 
     private final Image[] directionImages; // 0 = bas, 1 = haut, 2 = gauche, 3 = droite
 
-    public Player(int gridX, int gridY) {
-        directionImages = new Image[] {
-                new Image(getClass().getResourceAsStream("/bomberman/images/player1.png")),
-                new Image(getClass().getResourceAsStream("/bomberman/images/player1_dos.png")),
-                new Image(getClass().getResourceAsStream("/bomberman/images/player1_left.png")),
-                new Image(getClass().getResourceAsStream("/bomberman/images/player1_right.png"))
-        };
+
+
+    public Player(int gridX, int gridY, String skinChoice) {
+        directionImages = loadImagesForSkin(skinChoice);
 
         this.x = gridX;
         this.y = gridY;
 
-        setImage(directionImages[0]); // par défaut bas
+        setImage(directionImages[0]); // image par défaut
         setFitWidth(TILE_SIZE);
         setFitHeight(TILE_SIZE);
         setTranslateX(x * TILE_SIZE);
         setTranslateY(y * TILE_SIZE);
     }
+    private Image[] loadImagesForSkin(String skinChoice) {
+        String baseName = switch (skinChoice) {
+            case "Personnage 1" -> "player1";
+            case "Personnage 2" -> "player2";
+            case "Personnage 3" -> "player3";
+            case "Personnage 4" -> "player4";
+            default -> "player1"; // Par défaut
+        };
+
+        return new Image[] {
+                new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + ".png")),
+                new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_dos.png")),
+                new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_left.png")),
+                new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_right.png"))
+        };
+    }
+
 
     public int getGridX() {
         return x;

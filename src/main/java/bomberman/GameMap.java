@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static bomberman.AccueilController.choixJoueur1;
+
 public class GameMap {
 
     static final int TILE_SIZE = Player.TILE_SIZE;
@@ -59,7 +61,7 @@ public class GameMap {
     @FXML
     public void initialize() {
         drawMap();
-        player = new Player(playerX, playerY);
+        player = new Player(playerX, playerY,choixJoueur1);
         gamePane.getChildren().add(player);
         addEnemies(7);
 
@@ -105,11 +107,11 @@ public class GameMap {
             int x = random.nextInt(MAP[0].length());
 
             char tile = MAP[y].charAt(x);
-            boolean isPlayerPos = (x == playerX && y == playerY);
+            boolean isPlayerClose = (x-1 <= playerX && playerX <= x+1 && y -1<= playerY && playerY <= y+1);
             boolean isTileEmpty = (tile == ' ');
             boolean alreadyEnemy = enemies.stream().anyMatch(e -> e.getGridX() == x && e.getGridY() == y);
 
-            if (isTileEmpty && !isPlayerPos && !alreadyEnemy) {
+            if (isTileEmpty && !isPlayerClose && !alreadyEnemy) {
                 Enemy enemy = new Enemy(x, y, enemyImage, this);
                 enemies.add(enemy);
                 gamePane.getChildren().add(enemy);
