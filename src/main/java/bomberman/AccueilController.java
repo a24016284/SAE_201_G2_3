@@ -25,23 +25,17 @@ public class AccueilController {
 
     @FXML
     private Button playButton;
-
     @FXML
     private Button exitButton;
-
     @FXML
     private ImageView imageView;
+    @FXML
+    private Label choixJoueur;
+    @FXML
+    private Button perso1, perso2, perso3, perso4;
 
     private Timeline countdown;
     private int remainingTime = 90;
-
-
-    @FXML private Label choixJoueur;
-    @FXML private Button perso1, perso2, perso3, perso4;
-
-    private String imageJoueur1;
-    private String imageJoueur2;
-
     private int joueurActuel = 1;
 
     // Propriétés observables pour le binding
@@ -50,7 +44,6 @@ public class AccueilController {
 
     public static String choixJoueur1;
     public static String choixJoueur2;
-
 
     @FXML
     public void initialize() {
@@ -105,6 +98,9 @@ public class AccueilController {
     }
 
     private void showGameOver() {
+        // 🎵 MUSIQUE GAME OVER
+        Main.playGameOverMusic();
+
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Temps écoulé");
@@ -115,12 +111,11 @@ public class AccueilController {
         });
     }
 
-
     @FXML
     private void handleChoix(ActionEvent event) {
         Button boutonClique = (Button) event.getSource();
 
-        // Empêche le bouton d’être choisi à nouveau
+        // Empêche le bouton d'être choisi à nouveau
         boutonClique.setDisable(true);
         boutonClique.setVisible(false);
 
@@ -135,6 +130,4 @@ public class AccueilController {
             choixJoueur2 = boutonClique.getText();
         }
     }
-
-
 }

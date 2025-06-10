@@ -14,6 +14,7 @@ public class Main extends Application {
 
     private static MediaPlayer backgroundMusic;
     private static MediaPlayer gameOverMusic;
+    private static MediaPlayer deathMusic;
 
     public static void main(String[] args) {
         launch(args);
@@ -22,7 +23,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         try {
-            //playBackgroundMusic();
+            playBackgroundMusic();
 
             BorderPane root = FXMLLoader.load(getClass().getResource("/bomberman/BomberMan.fxml"));
             double largeur = 1160;
@@ -36,7 +37,7 @@ public class Main extends Application {
         }
     }
 
-    /*public static void playBackgroundMusic() {
+    public static void playBackgroundMusic() {
         stopAllMusic();
 
         URL resource = Main.class.getResource("/bomberman/audio/musique.mp3");
@@ -44,6 +45,7 @@ public class Main extends Application {
             Media media = new Media(resource.toExternalForm());
             backgroundMusic = new MediaPlayer(media);
             backgroundMusic.setCycleCount(MediaPlayer.INDEFINITE);
+            backgroundMusic.setVolume(0.5); // Réduire le volume si nécessaire
             backgroundMusic.play();
         }
     }
@@ -55,7 +57,20 @@ public class Main extends Application {
         if (resource != null) {
             Media media = new Media(resource.toExternalForm());
             gameOverMusic = new MediaPlayer(media);
+            gameOverMusic.setVolume(0.7);
             gameOverMusic.play();
+        }
+    }
+
+    public static void playDeathMusic() {
+        stopAllMusic();
+
+        URL resource = Main.class.getResource("/bomberman/audio/fatalité.mp3");
+        if (resource != null) {
+            Media media = new Media(resource.toExternalForm());
+            deathMusic = new MediaPlayer(media);
+            deathMusic.setVolume(0.8);
+            deathMusic.play();
         }
     }
 
@@ -66,10 +81,13 @@ public class Main extends Application {
         if (gameOverMusic != null) {
             gameOverMusic.stop();
         }
+        if (deathMusic != null) {
+            deathMusic.stop();
+        }
     }
 
     @Override
     public void stop() {
         stopAllMusic();
-    }*/
+    }
 }
