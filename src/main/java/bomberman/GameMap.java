@@ -54,7 +54,7 @@ public class GameMap {
 
     // Cooldown pour les bombes
     private long lastBombTime = 0;
-    private static final long BOMB_COOLDOWN = 1500;
+    private static final long BOMB_COOLDOWN = 1000;
 
     private Timeline gameTimer;
 
@@ -216,6 +216,8 @@ public class GameMap {
                     if (enemy.getGridX() == x && enemy.getGridY() == y) {
                         gamePane.getChildren().remove(enemy);
                         enemiesToRemove.add(enemy);
+                        enemy.setKilled();
+                        enemy.pauseMovement();
                     }
                 }
                 enemies.removeAll(enemiesToRemove);

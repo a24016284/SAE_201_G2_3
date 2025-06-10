@@ -17,6 +17,7 @@ public class Enemy extends ImageView {
     private int x;
     private int y;
     private static final int TILE_SIZE = Player.TILE_SIZE;
+    private boolean alive = true;
 
     private final GameMap gameMap;
 
@@ -42,6 +43,7 @@ public class Enemy extends ImageView {
         return y;
     }
 
+    public void setKilled() {this.alive = false;}
 
     private void startMoving() {
         movementTimeline = new Timeline(new KeyFrame(Duration.seconds(0.5), e -> moveRandomly()));
@@ -96,7 +98,7 @@ public class Enemy extends ImageView {
 
         }
         // Fin de moveRandomly
-        if (x == gameMap.getPlayer().getGridX() && y == gameMap.getPlayer().getGridY()) {
+        if (x == gameMap.getPlayer().getGridX() && y == gameMap.getPlayer().getGridY() && alive) {
             gameMap.gameOver();
         }
 
