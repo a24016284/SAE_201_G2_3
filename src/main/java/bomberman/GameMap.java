@@ -62,6 +62,10 @@ public class GameMap {
     private Timeline gameTimer;
     private IntegerProperty waveNumber = new SimpleIntegerProperty(1);
 
+    // Ajout du compteur de points
+    private IntegerProperty score = new SimpleIntegerProperty(0);
+    private static final int POINTS_PER_WAVE = 1; // Points gagnés par vague
+
     @FXML
     public void initialize() {
         drawMap();
@@ -78,6 +82,10 @@ public class GameMap {
      * Démarre une nouvelle vague
      */
     public void newWave(int i) {
+
+        if (i > 1) {
+            addScore(POINTS_PER_WAVE);
+        }
 
         // Nettoyer l'état du jeu
         clearGameState();
@@ -103,6 +111,29 @@ public class GameMap {
             gamePane.setOnKeyPressed(this::handleKeyPressed);
         });
     }
+
+    public void addScore(int points) {
+        score.set(score.get() + points);
+        System.out.println("Score: " + score.get() + " (+" + points + " points)");
+    }
+
+    /**
+     * Retourne le score actuel
+     */
+    public int getScore() {
+        return score.get();
+    }
+
+    /**
+     * Retourne la propriété score pour le binding
+     */
+    public IntegerProperty scoreProperty() {
+        return score;
+    }
+
+
+
+
     /**
      * Nettoie l'état actuel du jeu
      */

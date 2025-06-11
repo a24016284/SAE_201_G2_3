@@ -41,7 +41,7 @@ public class Player extends ImageView {
                 new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_dos.png")),
                 new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_left.png")),
                 new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_right.png")),
-               // new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_face.png"))
+
         };
     }
 
