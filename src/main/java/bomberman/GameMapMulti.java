@@ -3,6 +3,7 @@ import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
@@ -36,6 +37,12 @@ public class GameMapMulti {
     @FXML
     private Pane gamePane;
 
+    @FXML
+    private Label player1ScoreLabel;
+
+    @FXML
+    private Label player2ScoreLabel;
+
     private boolean isPaused = false;
 
     private final List<Enemy> enemies = new ArrayList<>();
@@ -49,7 +56,11 @@ public class GameMapMulti {
     private String choixJoueur1;
     private String choixJoueur2;
 
-
+    // Système de points
+    private int player1Score = 0;
+    private int player2Score = 0;
+    private static final int ENEMY_KILL_POINTS = 1;
+    private static final int PLAYER_KILL_POINTS = 3;
 
     private long lastBombTime = 0;
     private static final long BOMB_COOLDOWN = 1500;
@@ -65,6 +76,7 @@ public class GameMapMulti {
         gamePane.getChildren().addAll(player, player2);
 
         addEnemies(7);
+        updateScoreDisplay();
 
         gamePane.setFocusTraversable(true);
         Platform.runLater(() -> gamePane.requestFocus());
@@ -80,6 +92,33 @@ public class GameMapMulti {
         return player2;
     }
 
+    // Méthodes pour gérer les scores
+    public int getPlayer1Score() {
+        return player1Score;
+    }
+
+    public int getPlayer2Score() {
+        return player2Score;
+    }
+
+    private void addPointsToPlayer1(int points) {
+        player1Score += points;
+        updateScoreDisplay();
+    }
+
+    private void addPointsToPlayer2(int points) {
+        player2Score += points;
+        updateScoreDisplay();
+    }
+
+    private void updateScoreDisplay() {
+        if (player1ScoreLabel != null) {
+            player1ScoreLabel.setText(String.valueOf(player1Score));
+        }
+        if (player2ScoreLabel != null) {
+            player2ScoreLabel.setText(String.valueOf(player2Score));
+        }
+    }
 
     private void drawMap() {
         Image wallImage = new Image(getClass().getResourceAsStream("/bomberman/images/wall.png"));
@@ -155,7 +194,7 @@ public class GameMapMulti {
         }
     }
 
-    private void placeBomb(int x, int y) {
+    private void placeBomb(Player bombPlacer, int x, int y) {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastBombTime < BOMB_COOLDOWN) {
             System.out.println(" Attendez encore " + ((BOMB_COOLDOWN - (currentTime - lastBombTime)) / 1000.0) + " secondes !");
@@ -172,12 +211,12 @@ public class GameMapMulti {
         explosionDelay.setOnFinished(e -> {
             gamePane.getChildren().remove(bomb);
             bombs.remove(bomb);
-            destroyNearbyObstacles(x, y);
+            destroyNearbyObstacles(bombPlacer, x, y);
         });
         explosionDelay.play();
     }
 
-    private void destroyNearbyObstacles(int centerX, int centerY) {
+    private void destroyNearbyObstacles(Player bombOwner, int centerX, int centerY) {
         //Main.playExplosionSound();
 
         Image floorImage = new Image(getClass().getResourceAsStream("/bomberman/images/floor.png"));
@@ -221,18 +260,37 @@ public class GameMapMulti {
                 gamePane.getChildren().add(explosion);
                 explosionEffects.add(explosion);
 
+                // Vérifier les ennemis tués et attribuer des points
                 List<Enemy> enemiesToRemove = new ArrayList<>();
                 for (Enemy enemy : enemies) {
                     if (enemy.getGridX() == x && enemy.getGridY() == y) {
                         gamePane.getChildren().remove(enemy);
                         enemiesToRemove.add(enemy);
+
+                        // Attribuer des points au joueur qui a posé la bombe
+                        if (bombOwner == player) {
+                            addPointsToPlayer1(ENEMY_KILL_POINTS);
+                            System.out.println("Joueur 1 gagne " + ENEMY_KILL_POINTS + " point(s) pour avoir tué un ennemi!");
+                        } else if (bombOwner == player2) {
+                            addPointsToPlayer2(ENEMY_KILL_POINTS);
+                            System.out.println("Joueur 2 gagne " + ENEMY_KILL_POINTS + " point(s) pour avoir tué un ennemi!");
+                        }
                     }
                 }
                 enemies.removeAll(enemiesToRemove);
 
+                // Vérifier si un joueur est tué et attribuer des points à l'adversaire
                 if (player.getGridX() == x && player.getGridY() == y) {
+                    if (bombOwner == player2) {
+                        addPointsToPlayer2(PLAYER_KILL_POINTS);
+                        System.out.println("Joueur 2 gagne " + PLAYER_KILL_POINTS + " points pour avoir tué le Joueur 1!");
+                    }
                     showExplosionKilledMessage(player);
                 } else if (player2.getGridX() == x && player2.getGridY() == y) {
+                    if (bombOwner == player) {
+                        addPointsToPlayer1(PLAYER_KILL_POINTS);
+                        System.out.println("Joueur 1 gagne " + PLAYER_KILL_POINTS + " points pour avoir tué le Joueur 2!");
+                    }
                     showExplosionKilledMessage(player2);
                 }
             }
@@ -296,13 +354,13 @@ public class GameMapMulti {
             case S -> movePlayer(player, 0, 1, "BAS");
             case Q -> movePlayer(player, -1, 0, "GAUCHE");
             case D -> movePlayer(player, 1, 0, "DROITE");
-            case SPACE -> placeBomb(player.getGridX(), player.getGridY());
+            case SPACE -> placeBomb(player, player.getGridX(), player.getGridY());
 
             case UP -> movePlayer(player2, 0, -1, "HAUT");
             case DOWN -> movePlayer(player2, 0, 1, "BAS");
             case LEFT -> movePlayer(player2, -1, 0, "GAUCHE");
             case RIGHT -> movePlayer(player2, 1, 0, "DROITE");
-            case M -> placeBomb(player2.getGridX(), player2.getGridY());
+            case M -> placeBomb(player2, player2.getGridX(), player2.getGridY());
         }
     }
 
@@ -321,7 +379,20 @@ public class GameMapMulti {
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
             alert.setTitle("Game Over");
             alert.setHeaderText(null);
-            alert.setContentText("Un joueur a perdu !");
+
+            String winner = "";
+            if (player1Score > player2Score) {
+                winner = "Joueur 1 gagne avec " + player1Score + " points!";
+            } else if (player2Score > player1Score) {
+                winner = "Joueur 2 gagne avec " + player2Score + " points!";
+            } else {
+                winner = "Match nul avec " + player1Score + " points chacun!";
+            }
+
+            alert.setContentText("Un joueur a perdu !\n\nScore final:\n" +
+                    "Joueur 1: " + player1Score + " points\n" +
+                    "Joueur 2: " + player2Score + " points\n\n" +
+                    winner);
             alert.showAndWait();
             Platform.exit();
         });
@@ -343,7 +414,20 @@ public class GameMapMulti {
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
             alert.setTitle("Game Over");
             alert.setHeaderText(null);
-            alert.setContentText("Vous avez été tué par une BOMBE !");
+
+            String winner = "";
+            if (player1Score > player2Score) {
+                winner = "Joueur 1 gagne avec " + player1Score + " points!";
+            } else if (player2Score > player1Score) {
+                winner = "Joueur 2 gagne avec " + player2Score + " points!";
+            } else {
+                winner = "Match nul avec " + player1Score + " points chacun!";
+            }
+
+            alert.setContentText("Vous avez été tué par une BOMBE !\n\nScore final:\n" +
+                    "Joueur 1: " + player1Score + " points\n" +
+                    "Joueur 2: " + player2Score + " points\n\n" +
+                    winner);
             alert.showAndWait();
             Platform.exit();
         });
@@ -360,9 +444,29 @@ public class GameMapMulti {
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
             alert.setTitle("Game Over");
             alert.setHeaderText(null);
-            alert.setContentText(joueur + " a été tué par une EXPLOSION !");
+
+            String winner = "";
+            if (player1Score > player2Score) {
+                winner = "Joueur 1 gagne avec " + player1Score + " points!";
+            } else if (player2Score > player1Score) {
+                winner = "Joueur 2 gagne avec " + player2Score + " points!";
+            } else {
+                winner = "Match nul avec " + player1Score + " points chacun!";
+            }
+
+            alert.setContentText(joueur + " a été tué par une EXPLOSION !\n\nScore final:\n" +
+                    "Joueur 1: " + player1Score + " points\n" +
+                    "Joueur 2: " + player2Score + " points\n\n" +
+                    winner);
             alert.showAndWait();
             Platform.exit();
         });
+    }
+
+    public void setScoreLabels(Label player1ScoreLabel, Label player2ScoreLabel) {
+        this.player1ScoreLabel = player1ScoreLabel;
+        this.player2ScoreLabel = player2ScoreLabel;
+        // Mettre à jour l'affichage initial
+        updateScoreDisplay();
     }
 }
