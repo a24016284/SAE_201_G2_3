@@ -156,7 +156,7 @@ public class AccueilController {
 
     // Mise à jour de l'image du joueur 2
     private void updateImageJ2() {
-        if (modeMulti && imagePerso2 != null) {
+        if (modeMulti ) {
             updatePlayerImage(imagePerso2, indexPersoActuelJ2);
         }
     }
@@ -196,24 +196,26 @@ public class AccueilController {
         try {
             FXMLLoader loader = lancementJeu();
             BorderPane root = loader.load();
-            GameMap gameController = loader.getController();
 
-            // Barre supérieure avec timer et Vague pour mode solo
+            // Récupérer le contrôleur génériquement
+            Object controller = loader.getController();
+
+            // Barre supérieure avec timer
             VBox topBar = new VBox();
             topBar.setStyle("-fx-background-color: orange; -fx-padding: 10;");
             topBar.setAlignment(javafx.geometry.Pos.CENTER);
 
-
             countdownLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
             topBar.getChildren().add(countdownLabel);
-            if (!modeMulti){
+
+            // Si mode solo, ajouter le label de vague
+            if (!modeMulti && controller instanceof GameMap gameController) {
                 Label waveLabel = new Label();
                 waveLabel.textProperty().bind(gameController.waveNumberProperty().asString("Vague %d"));
                 waveLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
-
-                topBar.getChildren().add( waveLabel);
-                root.setTop(topBar);
+                topBar.getChildren().add(waveLabel);
             }
+
             root.setTop(topBar);
 
             // Compte à rebours
@@ -231,7 +233,12 @@ public class AccueilController {
             countdown.setCycleCount(remainingTime);
             countdown.play();
 
-            gameController.setGameTimer(countdown); // Toujours utile si le gameController veut l'arrêter
+            // Appeler setGameTimer() quel que soit le type du contrôleur
+            if (modeMulti && controller instanceof GameMapMulti gameMultiController) {
+                gameMultiController.setGameTimer(countdown);
+            } else if (!modeMulti && controller instanceof GameMap gameController) {
+                gameController.setGameTimer(countdown);
+            }
 
             // Changement de scène
             double largeur = 1160;
@@ -243,6 +250,7 @@ public class AccueilController {
             e.printStackTrace();
         }
     }
+
 
     private void showGameOver() {
         // 🎵 MUSIQUE GAME OVER

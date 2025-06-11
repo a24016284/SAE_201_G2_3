@@ -14,20 +14,38 @@ import javafx.animation.TranslateTransition;
 
 
 public class Enemy extends ImageView {
+    private  GameMap gameMap;
+    private GameMapMulti gameMapMulti;
+    private GameMode gameMode;
     private int x;
     private int y;
     private static final int TILE_SIZE = Player.TILE_SIZE;
     private boolean alive = true;
 
-    private final GameMap gameMap;
 
     private Timeline movementTimeline;
+
+
 
     public Enemy(int gridX, int gridY, Image enemyImage, GameMap gameMap) {
         super(enemyImage);
         this.gameMap = gameMap;
         this.x = gridX;
         this.y = gridY;
+        gameMode  = GameMode.SOLO;
+        setFitWidth(TILE_SIZE);
+        setFitHeight(TILE_SIZE);
+        setTranslateX(x * TILE_SIZE);
+        setTranslateY(y * TILE_SIZE);
+        startMoving();
+    }
+
+    public Enemy(int gridX, int gridY, Image enemyImage, GameMapMulti gameMapMulti) {
+        super(enemyImage);
+        this.gameMapMulti = gameMapMulti;
+        this.x = gridX;
+        this.y = gridY;
+        gameMode  = GameMode.MULTI;
         setFitWidth(TILE_SIZE);
         setFitHeight(TILE_SIZE);
         setTranslateX(x * TILE_SIZE);
@@ -64,7 +82,13 @@ public class Enemy extends ImageView {
 
     private void moveRandomly() {
 
-        if (gameMap.isPaused()) return;
+        if (gameMode == GameMode.SOLO){
+            if (gameMap.isPaused()) return;
+        } else if (gameMode == GameMode.MULTI) {
+            if (gameMapMulti.isPaused()) return;
+        }
+
+
 
 
         int[][] directions = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
@@ -99,6 +123,16 @@ public class Enemy extends ImageView {
 
 
         // Fin de moveRandomly
+        if (gameMode == GameMode.SOLO){
+            if (x == gameMap.getPlayer().getGridX() && y == gameMap.getPlayer().getGridY()) {
+                gameMap.gameOver();
+            }
+        } else if (gameMode == GameMode.MULTI) {
+            if (x == gameMapMulti.getPlayer().getGridX() && y == gameMapMulti.getPlayer().getGridY()) {
+                gameMapMulti.gameOver();
+            }
+        }
+
 
     }
 

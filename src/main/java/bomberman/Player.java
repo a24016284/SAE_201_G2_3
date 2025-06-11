@@ -12,18 +12,20 @@ public class Player extends ImageView {
 
     private final Image[] directionImages; // 0 = bas, 1 = haut, 2 = gauche, 3 = droite
 
+
+
     public Player(int gridX, int gridY, String skinChoice) {
         directionImages = loadImagesForSkin(skinChoice);
-
         this.x = gridX;
         this.y = gridY;
 
-        setImage(directionImages[0]); // image par défaut
+        setImage(directionImages[0]);
         setFitWidth(TILE_SIZE);
         setFitHeight(TILE_SIZE);
         setTranslateX(x * TILE_SIZE);
         setTranslateY(y * TILE_SIZE);
     }
+
 
     private Image[] loadImagesForSkin(String skinChoice) {
         String baseName = switch (skinChoice) {
@@ -39,7 +41,7 @@ public class Player extends ImageView {
                 new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_dos.png")),
                 new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_left.png")),
                 new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_right.png")),
-                //new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_face.png"))
+               // new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_face.png"))
         };
     }
 

@@ -24,7 +24,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         try {
-            playBackgroundMusic();
+            //playBackgroundMusic();
 
             BorderPane root = FXMLLoader.load(getClass().getResource("/bomberman/BomberMan.fxml"));
             double largeur = 1160;
@@ -39,7 +39,7 @@ public class Main extends Application {
     }
 
     public static void playBackgroundMusic() {
-        stopAllMusic();
+        //stopAllMusic();
 
         URL resource = Main.class.getResource("/bomberman/audio/musique.mp3");
         if (resource != null) {
@@ -51,54 +51,54 @@ public class Main extends Application {
         }
     }
 
-    public static void playGameOverMusic() {
-        stopAllMusic();
-
-        URL resource = Main.class.getResource("/bomberman/audio/fatalité.mp3");
-        if (resource != null) {
-            Media media = new Media(resource.toExternalForm());
-            gameOverMusic = new MediaPlayer(media);
-            gameOverMusic.setVolume(0.7);
-            gameOverMusic.play();
-        }
-    }
-
-    public static void playDeathMusic() {
-        stopAllMusic();
-
-        URL resource = Main.class.getResource("/bomberman/audio/fatalité.mp3");
-        if (resource != null) {
-            Media media = new Media(resource.toExternalForm());
-            deathMusic = new MediaPlayer(media);
-            deathMusic.setVolume(0.8);
-            deathMusic.play();
-        }
-    }
-
-    public static void playExplosionSound() {
-        URL resource = Main.class.getResource("/bomberman/audio/boom(1).mp3");
-        if (resource != null) {
-            Media media = new Media(resource.toExternalForm());
-            explosionSound = new MediaPlayer(media);
-            explosionSound.setVolume(0.7);
-            explosionSound.play();
-        }
-    }
-
-    public static void stopAllMusic() {
-        if (backgroundMusic != null) {
-            backgroundMusic.stop();
-        }
-        if (gameOverMusic != null) {
-            gameOverMusic.stop();
-        }
-        if (deathMusic != null) {
-            deathMusic.stop();
-        }
-    }
-
-    @Override
-    public void stop() {
-        stopAllMusic();
-    }
+//    public static void playGameOverMusic() {
+//        stopAllMusic();
+//
+//        URL resource = Main.class.getResource("/bomberman/audio/fatalité.mp3");
+//        if (resource != null) {
+//            Media media = new Media(resource.toExternalForm());
+//            gameOverMusic = new MediaPlayer(media);
+//            gameOverMusic.setVolume(0.7);
+//            gameOverMusic.play();
+//        }
+//    }
+//
+//    public static void playDeathMusic() {
+//        stopAllMusic();
+//
+//        URL resource = Main.class.getResource("/bomberman/audio/fatalité.mp3");
+//        if (resource != null) {
+//            Media media = new Media(resource.toExternalForm());
+//            deathMusic = new MediaPlayer(media);
+//            deathMusic.setVolume(0.8);
+//            deathMusic.play();
+//        }
+//    }
+//
+//    public static void playExplosionSound() {
+//        URL resource = Main.class.getResource("/bomberman/audio/boom(1).mp3");
+//        if (resource != null) {
+//            Media media = new Media(resource.toExternalForm());
+//            explosionSound = new MediaPlayer(media);
+//            explosionSound.setVolume(0.7);
+//            explosionSound.play();
+//        }
+//    }
+//
+//    public static void stopAllMusic() {
+//        if (backgroundMusic != null) {
+//            backgroundMusic.stop();
+//        }
+//        if (gameOverMusic != null) {
+//            gameOverMusic.stop();
+//        }
+//        if (deathMusic != null) {
+//            deathMusic.stop();
+//        }
+//    }
+//
+//    @Override
+//    public void stop() {
+//        stopAllMusic();
+//    }
 }

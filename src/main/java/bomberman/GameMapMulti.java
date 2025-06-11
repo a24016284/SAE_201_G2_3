@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
@@ -14,20 +13,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class GameMapMulti extends GameMap {
+public class GameMapMulti {
 
     static final int TILE_SIZE = Player.TILE_SIZE;
     static final String[] MAP = {
             "#############################",
-            "#   *   #   *   #   *   #   #",
-            "# ### ### ### ### ### ### # #",
-            "# *   *   *   *   *   *   * #",
-            "# ### ### ### ### ### ### # #",
-            "# *   *   *   *   *   *   * #",
-            "# ### ### ### ### ### ### # #",
-            "# *   *   *   *   *   *   * #",
-            "# ### ### ### ### ### ### # #",
-            "#   *   #   *   #   *   #   #",
+            "# ****  *   *       *  **   #",
+            "# #*# # #*# # #*# #*# # # # #",
+            "# *   * ***  **   *  **  ** #",
+            "# # # #*# #*# # # # # # # # #",
+            "# *  **   * * * ***  **   * #",
+            "# # #*# #*# # #*# # # # #*# #",
+            "# *   **  *   *  ** * *   * #",
+            "# # # #*# # # #*#*# # #*# # #",
+            "#   **  **  **  *   ***  *  #",
             "#############################"
     };
 
@@ -51,16 +50,17 @@ public class GameMapMulti extends GameMap {
     private String choixJoueur2;
 
 
+
     private long lastBombTime = 0;
     private static final long BOMB_COOLDOWN = 1500;
 
     private Timeline gameTimer;
 
-    @Override
+    @FXML
     public void initialize() {
         drawMap();
-        player = new Player(playerX, playerY, choixJoueur1);
-        player2 = new Player(MAP_WIDTH - 2, MAP_HEIGHT - 2, choixJoueur2);
+        player = new Player(playerX, playerY, "Personnage 1");
+        player2 = new Player(MAP_WIDTH - 2, MAP_HEIGHT - 2, "Personnage 2");
 
         gamePane.getChildren().addAll(player, player2);
 
@@ -80,9 +80,105 @@ public class GameMapMulti extends GameMap {
         return player2;
     }
 
-    @Override
-    public void destroyNearbyObstacles(int centerX, int centerY) {
-        Main.playExplosionSound();
+
+    private void drawMap() {
+        Image wallImage = new Image(getClass().getResourceAsStream("/bomberman/images/wall.png"));
+        Image obstacleImage = new Image(getClass().getResourceAsStream("/bomberman/images/obstacle.png"));
+        Image floorImage = new Image(getClass().getResourceAsStream("/bomberman/images/floor.png"));
+
+        for (int y = 0; y < MAP.length; y++) {
+            for (int x = 0; x < MAP[y].length(); x++) {
+                char tile = MAP[y].charAt(x);
+
+                Image imageToUse;
+                switch (tile) {
+                    case '#' -> imageToUse = wallImage;
+                    case '*' -> imageToUse = obstacleImage;
+                    default -> imageToUse = floorImage;
+                }
+
+                ImageView tileView = new ImageView(imageToUse);
+                tileView.setFitWidth(TILE_SIZE);
+                tileView.setFitHeight(TILE_SIZE);
+                tileView.setX(x * TILE_SIZE);
+                tileView.setY(y * TILE_SIZE);
+
+                gamePane.getChildren().add(tileView);
+            }
+        }
+    }
+
+    private void addEnemies(int numberOfEnemies) {
+        Image enemyImage = new Image(getClass().getResourceAsStream("/bomberman/images/enemy.png"));
+        Random random = new Random();
+        int added = 0;
+
+        while (added < numberOfEnemies) {
+            int y = random.nextInt(MAP_HEIGHT);
+            int x = random.nextInt(MAP[0].length());
+
+            char tile = MAP[y].charAt(x);
+            boolean isPlayerClose = (x - 1 <= playerX && playerX <= x + 1 && y - 1 <= playerY && playerY <= y + 1);
+            boolean isTileEmpty = (tile == ' ');
+            boolean alreadyEnemy = enemies.stream().anyMatch(e -> e.getGridX() == x && e.getGridY() == y);
+
+            if (isTileEmpty && !isPlayerClose && !alreadyEnemy) {
+                Enemy enemy = new Enemy(x, y, enemyImage, this);
+                enemies.add(enemy);
+                gamePane.getChildren().add(enemy);
+                added++;
+            }
+        }
+    }
+
+    public void setGameTimer(Timeline gameTimer) {
+        this.gameTimer = gameTimer;
+    }
+
+    public void pauseGame() {
+        isPaused = true;
+        for (Enemy enemy : enemies) {
+            enemy.pauseMovement();
+        }
+        if (gameTimer != null) {
+            gameTimer.pause();
+        }
+    }
+
+    public void resumeGame() {
+        isPaused = false;
+        for (Enemy enemy : enemies) {
+            enemy.resumeMovement();
+        }
+        if (gameTimer != null) {
+            gameTimer.play();
+        }
+    }
+
+    private void placeBomb(int x, int y) {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastBombTime < BOMB_COOLDOWN) {
+            System.out.println(" Attendez encore " + ((BOMB_COOLDOWN - (currentTime - lastBombTime)) / 1000.0) + " secondes !");
+            return;
+        }
+
+        lastBombTime = currentTime;
+
+        Bomb bomb = new Bomb(x, y);
+        bombs.add(bomb);
+        gamePane.getChildren().add(bomb);
+
+        PauseTransition explosionDelay = new PauseTransition(Duration.seconds(2));
+        explosionDelay.setOnFinished(e -> {
+            gamePane.getChildren().remove(bomb);
+            bombs.remove(bomb);
+            destroyNearbyObstacles(x, y);
+        });
+        explosionDelay.play();
+    }
+
+    private void destroyNearbyObstacles(int centerX, int centerY) {
+        //Main.playExplosionSound();
 
         Image floorImage = new Image(getClass().getResourceAsStream("/bomberman/images/floor.png"));
         Image explosionImage = new Image(getClass().getResourceAsStream("/bomberman/images/explosion.png"));
@@ -147,6 +243,10 @@ public class GameMapMulti extends GameMap {
         cleanup.play();
     }
 
+    public boolean isPaused() {
+        return isPaused;
+    }
+
     private void movePlayer(Player player, int dx, int dy, String direction) {
         int newX = player.getGridX() + dx;
         int newY = player.getGridY() + dy;
@@ -171,8 +271,8 @@ public class GameMapMulti extends GameMap {
         }
     }
 
-    public void handleKeyPressed(KeyEvent event) {
-        if (event.getCode() == KeyCode.SPACE && event.isControlDown()) {
+    private void handleKeyPressed(KeyEvent event) {
+        if (event.getCode() == javafx.scene.input.KeyCode.SPACE && event.isControlDown()) {
             if (isPaused) {
                 resumeGame();
             } else {
@@ -206,12 +306,16 @@ public class GameMapMulti extends GameMap {
         }
     }
 
+    public Player getPlayer() {
+        return player;
+    }
+
     public void gameOver() {
         if (gameOverTriggered) return;
         gameOverTriggered = true;
 
         gamePane.setOnKeyPressed(null);
-        Main.playDeathMusic();
+        //Main.playDeathMusic();
 
         Platform.runLater(() -> {
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
@@ -223,13 +327,34 @@ public class GameMapMulti extends GameMap {
         });
     }
 
+    public boolean isGameOverTriggered() {
+        return gameOverTriggered;
+    }
+
+    public void setGameOverTriggered(boolean gameOverTriggered) {
+        this.gameOverTriggered = gameOverTriggered;
+    }
+
+    private void showBombKilledMessage() {
+        if (gameOverTriggered) return;
+        gameOverTriggered = true;
+
+        Platform.runLater(() -> {
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+            alert.setTitle("Game Over");
+            alert.setHeaderText(null);
+            alert.setContentText("Vous avez été tué par une BOMBE !");
+            alert.showAndWait();
+            Platform.exit();
+        });
+    }
 
     private void showExplosionKilledMessage(Player killedPlayer) {
         if (gameOverTriggered) return;
         gameOverTriggered = true;
 
         String joueur = (killedPlayer == player) ? "Joueur 1" : "Joueur 2";
-        Main.playDeathMusic();
+        //Main.playDeathMusic();
 
         Platform.runLater(() -> {
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
