@@ -17,6 +17,7 @@ public class Enemy extends ImageView {
     private int x;
     private int y;
     private static final int TILE_SIZE = Player.TILE_SIZE;
+    private boolean alive = true;
 
     private final GameMap gameMap;
 
@@ -104,4 +105,5 @@ public class Enemy extends ImageView {
 
     }
 
+    public void setKilled() {this.alive = false;}
 }

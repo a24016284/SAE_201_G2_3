@@ -1,57 +1,109 @@
-/* Fond général dégradé léger */
+/* Style.css - Thème arcade Bomberman classique */
+
+/* Import de police pixelisée */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* Fond noir pur comme l'écran d'arcade original */
 .root {
-    -fx-background-color: linear-gradient(to bottom right, #1e1e2f, #3b3b5c);
-    -fx-padding: 20;
+    -fx-background-color: #000000;
+    -fx-font-family: "Press Start 2P", "Courier New", monospace;
 }
 
-/* Boutons stylisés avec ombre et arrondis doux */
-.button {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-background-color: #ff7f50;
-    -fx-text-fill: white;
-    -fx-background-radius: 15;
-    -fx-padding: 10 20;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0.5, 0, 2);
-    -fx-cursor: hand;
-    -fx-transition: background-color 0.3s ease;
-}
-
-.button:hover {
-    -fx-background-color: #ff9666;
-}
-
-/* Label général */
-.label {
-    -fx-text-fill: #eeeeee;
-    -fx-font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Titre avec gradient plus doux et ombre */
-.label-title {
-    -fx-font-family: "Arial Black", "Helvetica Bold", sans-serif;
-    -fx-font-size: 42px;
-    -fx-text-fill: linear-gradient(from 0% 0% to 100% 100%, #ffd27f, #ff7f50);
-    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.6) , 6, 0.5 , 2 , 2 );
-    -fx-padding: 0 0 20 0;
-}
-
-/* VBox principal centré */
+/* Conteneur principal transparent */
 #gamePane {
-    -fx-background-color: rgba(255, 255, 255, 0.1);
-    -fx-background-radius: 20;
-    -fx-padding: 30 40;
-    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.7) , 10, 0.3 , 0 , 0 );
+    -fx-background-color: transparent;
 }
 
-/* Labels spécifiques */
-#choixJoueur {
+/* Style pour tous les boutons - sans contour */
+.button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-family: "Press Start 2P", "Courier New", monospace;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-font-size: 18px;
-    -fx-padding: 10 0 10 0;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-cursor: hand;
+    -fx-padding: 10 15 10 15;
 }
 
-/* HBox boutons personnages */
-HBox {
-    -fx-padding: 10 0 10 0;
+/* Effet hover sur les boutons - changement de couleur du texte */
+.button:hover {
+    -fx-text-fill: #ffff00;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 0, 0.8), 5, 0, 0, 0);
+}
+
+/* Effet pressed sur les boutons */
+.button:pressed {
+    -fx-text-fill: #ff0000;
+}
+
+/* Style spécifique pour le bouton Solo */
+#Solo {
+    -fx-text-fill: white;
+}
+
+#Solo:hover {
+    -fx-text-fill: #00ff00;
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 0, 0.8), 5, 0, 0, 0);
+}
+
+/* Style spécifique pour le bouton Multi */
+#Multi {
+    -fx-text-fill: white;
+}
+
+#Multi:hover {
+    -fx-text-fill: #ff6600;
+    -fx-effect: dropshadow(gaussian, rgba(255, 102, 0, 0.8), 5, 0, 0, 0);
+}
+
+/* Style spécifique pour le bouton Quitter */
+#exitButton {
+    -fx-text-fill: white;
+}
+
+#exitButton:hover {
+    -fx-text-fill: #ff0000;
+    -fx-effect: dropshadow(gaussian, rgba(255, 0, 0, 0.8), 5, 0, 0, 0);
+}
+
+/* Style des labels - texte blanc sur fond noir */
+.label {
+    -fx-text-fill: white;
+    -fx-font-family: "Press Start 2P", "Courier New", monospace;
+    -fx-font-size: 10px;
+}
+
+/* Style pour les titres SOLO et MULTI-JOUEUR */
+.label-title {
+    -fx-text-fill: #ffff00;
+    -fx-font-family: "Press Start 2P", "Courier New", monospace;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 0, 0.8), 10, 0, 2, 2);
+}
+
+/* Conteneur principal sans bordure */
+.border-pane {
+    -fx-background-color: #000000;
+    -fx-border-width: 0;
+}
+
+/* Conteneurs transparents */
+.vbox, .hbox {
+    -fx-background-color: transparent;
+}
+
+/* Animation pour les boutons au focus */
+.button:focused {
+    -fx-text-fill: #ffff00;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 0, 1.0), 8, 0, 0, 0);
+}
+
+/* Style pour l'image titre */
+.image-view {
+    -fx-effect: none;
 }

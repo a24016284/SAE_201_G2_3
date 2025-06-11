@@ -12,17 +12,17 @@ public class Player extends ImageView {
 
     private final Image[] directionImages; // 0 = bas, 1 = haut, 2 = gauche, 3 = droite
 
-    public Player(int x, int y, String personnageChoisi) {
-        this.x = x;
-        this.y = y;
-        this.directionImages = loadImagesForSkin(personnageChoisi);
+    public Player(int gridX, int gridY, String skinChoice) {
+        directionImages = loadImagesForSkin(skinChoice);
 
-        setImage(directionImages[0]); // image de base (face)
+        this.x = gridX;
+        this.y = gridY;
+
+        setImage(directionImages[0]); // image par défaut
         setFitWidth(TILE_SIZE);
         setFitHeight(TILE_SIZE);
         setTranslateX(x * TILE_SIZE);
         setTranslateY(y * TILE_SIZE);
-
     }
 
     private Image[] loadImagesForSkin(String skinChoice) {
@@ -35,10 +35,11 @@ public class Player extends ImageView {
         };
 
         return new Image[] {
-                new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + ".png")),      // bas
-                new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_dos.png")),  // haut
-                new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_left.png")), // gauche
-                new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_right.png")) // droite
+                new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + ".png")),
+                new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_dos.png")),
+                new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_left.png")),
+                new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_right.png")),
+                new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_face.png"))
         };
     }
 
@@ -68,4 +69,10 @@ public class Player extends ImageView {
             case "DROITE" -> setImage(directionImages[3]);
         }
     }
+
+    public Image getFaceImage() {
+        return directionImages[4];
+    }
+
+
 }

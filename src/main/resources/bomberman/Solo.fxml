@@ -17,6 +17,9 @@
             prefWidth="600"
             prefHeight="400">
 
+
+
+
     <center>
         <VBox fx:id="gamePane"
               spacing="20"
@@ -25,25 +28,35 @@
                 <Insets top="40" right="20" bottom="40" left="20"/>
             </padding>
 
-            <ImageView fitWidth="600" fitHeight="600" preserveRatio="true">
-                <image>
-                    <Image url="@images/Titre.png" />
-                </image>
-            </ImageView>
+            <Label text="SOLO" styleClass="label-title"/>
 
-            <Label text=" ACH Sofia ARFI Maxime CANTOR Romain NEPOTU Gheorghe"/>
 
-            <VBox alignment="CENTER" spacing="20" >
+            <Label text=" Survivez à un maximum d'attaques de monstres"/>
 
-                <HBox alignment="CENTER" spacing="20">
-                    <Button fx:id="Solo" text="Mode Solo" prefWidth="200" onAction="#JeuSolo"/>
-                    <Button fx:id="Multi" text="Mode MultiJoueur" prefWidth="300" onAction="#JeuMulti"/>
+
+            <VBox alignment="CENTER" spacing="20">
+
+                <HBox alignment="CENTER" spacing="10">
+                    <Button fx:id="btnPrev" text="&lt;" onAction="#handlePrev" prefWidth="50"/>
+                    <ImageView fx:id="imagePerso" fitWidth="150" fitHeight="150"/>
+                    <Button fx:id="btnNext" text="&gt;" onAction="#handleNext" prefWidth="50"/>
                 </HBox>
 
             </VBox>
 
+            <HBox alignment="CENTER" spacing="20">
+                <Button fx:id="playButton" text="Jouer" prefWidth="200"/>
+                <Button fx:id="backButton" text="Retour" prefWidth="200" onAction="#handleBack"/>
+            </HBox>
+
             <Button fx:id="exitButton" text="Quitter" prefWidth="200"/>
         </VBox>
     </center>
+
+
+
+
+
+
 
 </BorderPane>
