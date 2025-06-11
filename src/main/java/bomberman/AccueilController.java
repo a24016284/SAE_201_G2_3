@@ -1,3 +1,4 @@
+//AccueilController
 package bomberman;
 
 import javafx.animation.KeyFrame;
@@ -15,7 +16,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -25,17 +26,23 @@ public class AccueilController {
 
     @FXML
     private Button playButton;
+
     @FXML
     private Button exitButton;
+
     @FXML
     private ImageView imageView;
-    @FXML
-    private Label choixJoueur;
-    @FXML
-    private Button perso1, perso2, perso3, perso4;
 
     private Timeline countdown;
-    private int remainingTime = 90;
+    private int remainingTime = 600;
+
+
+    @FXML private Label choixJoueur;
+    @FXML private Button perso1, perso2, perso3, perso4;
+
+    private String imageJoueur1;
+    private String imageJoueur2;
+
     private int joueurActuel = 1;
 
     // Propriétés observables pour le binding
@@ -44,6 +51,7 @@ public class AccueilController {
 
     public static String choixJoueur1;
     public static String choixJoueur2;
+
 
     @FXML
     public void initialize() {
@@ -56,16 +64,21 @@ public class AccueilController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/bomberman/Game.fxml"));
             BorderPane root = loader.load();
-            GameMap controller = loader.getController();
+            GameMap gameController = loader.getController();
 
-            // Barre supérieure avec timer
-            HBox topBar = new HBox();
+            // Barre supérieure avec timer et Vague pour mode solo
+            VBox topBar = new VBox();
             topBar.setStyle("-fx-background-color: orange; -fx-padding: 10;");
             topBar.setAlignment(javafx.geometry.Pos.CENTER);
 
-            Label countdownLabel = new Label("01:30");
+            Label countdownLabel = new Label("10:00");
             countdownLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
-            topBar.getChildren().add(countdownLabel);
+
+            Label waveLabel = new Label();
+            waveLabel.textProperty().bind(gameController.waveNumberProperty().asString("Vague %d"));
+            waveLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
+
+            topBar.getChildren().addAll(countdownLabel,  waveLabel);
             root.setTop(topBar);
 
             // Compte à rebours
@@ -83,11 +96,11 @@ public class AccueilController {
             countdown.setCycleCount(remainingTime);
             countdown.play();
 
-            controller.setGameTimer(countdown); // Toujours utile si le controller veut l'arrêter
+            gameController.setGameTimer(countdown); // Toujours utile si le gameController veut l'arrêter
 
             // Changement de scène
             double largeur = 1160;
-            double longueur = 480;
+            double longueur = 515;
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, largeur, longueur));
             stage.show();
@@ -115,7 +128,7 @@ public class AccueilController {
     private void handleChoix(ActionEvent event) {
         Button boutonClique = (Button) event.getSource();
 
-        // Empêche le bouton d'être choisi à nouveau
+        // Empêche le bouton d’être choisi à nouveau
         boutonClique.setDisable(true);
         boutonClique.setVisible(false);
 
@@ -130,4 +143,6 @@ public class AccueilController {
             choixJoueur2 = boutonClique.getText();
         }
     }
+
+
 }
