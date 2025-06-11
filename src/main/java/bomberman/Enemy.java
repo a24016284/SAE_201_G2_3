@@ -125,11 +125,13 @@ public class Enemy extends ImageView {
         // Fin de moveRandomly
         if (gameMode == GameMode.SOLO){
             if (x == gameMap.getPlayer().getGridX() && y == gameMap.getPlayer().getGridY()) {
-                gameMap.gameOver();
+                if (gameMap.getPlayer().getShield() != 0) { gameMap.getPlayer().lowerShield();}
+                else {gameMap.gameOver();}
             }
         } else if (gameMode == GameMode.MULTI) {
             if (x == gameMapMulti.getPlayer().getGridX() && y == gameMapMulti.getPlayer().getGridY()) {
-                gameMapMulti.gameOver();
+                if (gameMapMulti.getPlayer().getShield() != 0) { gameMapMulti.getPlayer().lowerShield();}
+                else {gameMapMulti.gameOver();}
             }
         }
 

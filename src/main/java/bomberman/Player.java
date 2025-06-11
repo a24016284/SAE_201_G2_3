@@ -9,6 +9,9 @@ public class Player extends ImageView {
     private int x;
     private int y;
     public static final int TILE_SIZE = 40;
+    private long bombCooldown = 1000;
+    private int range = 1;
+    private int shield = 0;
 
     private final Image[] directionImages; // 0 = bas, 1 = haut, 2 = gauche, 3 = droite
 
@@ -41,7 +44,6 @@ public class Player extends ImageView {
                 new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_dos.png")),
                 new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_left.png")),
                 new Image(getClass().getResourceAsStream("/bomberman/images/" + baseName + "_right.png")),
-
         };
     }
 
@@ -51,6 +53,17 @@ public class Player extends ImageView {
 
     public int getGridY() {
         return y;
+    }
+
+    public long getBombCooldown(){ return bombCooldown;}
+
+    public int getRange(){ return range;}
+
+    public int getShield(){ return shield;}
+
+    public void lowerShield(){
+        shield -= 1;
+        System.out.println("Shield: " + shield);
     }
 
     public void moveToAnimated(int newX, int newY) {
@@ -70,6 +83,18 @@ public class Player extends ImageView {
             case "GAUCHE" -> setImage(directionImages[2]);
             case "DROITE" -> setImage(directionImages[3]);
         }
+    }
+
+    public void powerupCooldown(){
+        bombCooldown = bombCooldown / 2;
+        System.out.println("Nouveau cooldown: " + bombCooldown);
+    }
+
+    public void powerupRange(){range += 1;}
+
+    public void powerupShield(){
+        shield += 1;
+        System.out.println("Shield: " + shield);
     }
 
     public Image getFaceImage() {

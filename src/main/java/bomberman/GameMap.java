@@ -57,7 +57,6 @@ public class GameMap {
 
     // Cooldown pour les bombes
     private long lastBombTime = 0;
-    private static final long BOMB_COOLDOWN = 1000;
 
     private Timeline gameTimer;
     private IntegerProperty waveNumber = new SimpleIntegerProperty(1);
@@ -130,8 +129,6 @@ public class GameMap {
     public IntegerProperty scoreProperty() {
         return score;
     }
-
-
 
 
     /**
@@ -277,10 +274,10 @@ public class GameMap {
         }
     }
 
-    private void placeBomb(int x, int y) {
+    private void placeBomb(Player player, int x, int y) {
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastBombTime < BOMB_COOLDOWN) {
-            System.out.println(" Attendez encore " + ((BOMB_COOLDOWN - (currentTime - lastBombTime)) / 1000.0) + " secondes !");
+        if (currentTime - lastBombTime < player.getBombCooldown()) {
+            System.out.println(" Attendez encore " + ((player.getBombCooldown() - (currentTime - lastBombTime)) / 1000.0) + " secondes !");
             return;
         }
 
@@ -290,7 +287,7 @@ public class GameMap {
         bombs.add(bomb);
         gamePane.getChildren().add(bomb);
         StringBuilder row = new StringBuilder(MAP[y]);
-        row.setCharAt(x, '*');
+        row.setCharAt(x, 'B');
         MAP[y] = row.toString();
 
         PauseTransition explosionDelay = new PauseTransition(Duration.seconds(2));
@@ -324,7 +321,20 @@ public class GameMap {
 
                 if (tile == '*') {
                     StringBuilder row = new StringBuilder(MAP[y]);
-                    row.setCharAt(x, ' ');
+                    int randomNumber = new Random().nextInt(20);
+                    if (randomNumber == 1){
+                        row.setCharAt(x, 'S');
+                        Powerup shield = new Powerup(x, y, "shield");
+                        gamePane.getChildren().add(shield);
+                    }
+                    else if (randomNumber == 2){
+                        row.setCharAt(x, 'C');
+                        Powerup cooldown = new Powerup(x, y, "cooldown");
+                        gamePane.getChildren().add(cooldown);
+                    }
+                    else{
+                        row.setCharAt(x, ' ');
+                    }
                     MAP[y] = row.toString();
 
                     gamePane.getChildren().removeIf(node ->
@@ -338,6 +348,12 @@ public class GameMap {
                     floor.setX(x * TILE_SIZE);
                     floor.setY(y * TILE_SIZE);
                     gamePane.getChildren().add(0, floor);
+                }
+
+                if (tile == 'B') {
+                    StringBuilder row = new StringBuilder(MAP[y]);
+                    row.setCharAt(x, ' ');
+                    MAP[y] = row.toString();
                 }
 
                 ImageView explosion = new ImageView(explosionImage);
@@ -364,7 +380,8 @@ public class GameMap {
                 }
 
                 if (player.getGridX() == x && player.getGridY() == y && !gameOverTriggered) {
-                    showExplosionKilledMessage();
+                    if (player.getShield() != 0) { player.lowerShield();}
+                    else {showExplosionKilledMessage();}
                 }
             }
         }
@@ -425,7 +442,7 @@ public class GameMap {
                 player.setDirection("DROITE");
             }
             case SPACE -> {
-                placeBomb(player.getGridX(), player.getGridY());
+                placeBomb(player, player.getGridX(), player.getGridY());
                 return;
             }
             default -> {
@@ -436,14 +453,24 @@ public class GameMap {
 
         if (newX >= 0 && newX < MAP_WIDTH && newY >= 0 && newY < MAP_HEIGHT) {
             char destination = MAP[newY].charAt(newX);
-            if (destination != '#' && destination != '*') {
+            if (destination != '#' && destination != '*' && destination != 'B') {
                 for (Enemy enemy : enemies) {
                     if (enemy.getGridX() == newX && enemy.getGridY() == newY) {
-                        gameOver();
+                        if (player.getShield() != 0) { player.lowerShield();}
+                        else {gameOver();}
                         return;
                     }
                 }
                 player.moveToAnimated(newX, newY);
+                if (destination == 'C') {
+                    player.powerupCooldown();
+                }
+                else if (destination == 'R') {
+                    player.powerupRange();
+                }
+                else if (destination == 'S') {
+                    player.powerupShield();
+                }
             }
         }
     }
