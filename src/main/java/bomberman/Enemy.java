@@ -19,24 +19,12 @@ public class Enemy extends ImageView {
     private static final int TILE_SIZE = Player.TILE_SIZE;
 
     private final GameMap gameMap;
-    private final GameMapMulti gameMapMulti;
+
     private Timeline movementTimeline;
 
     public Enemy(int gridX, int gridY, Image enemyImage, GameMap gameMap) {
         super(enemyImage);
         this.gameMap = gameMap;
-        this.x = gridX;
-        this.y = gridY;
-        setFitWidth(TILE_SIZE);
-        setFitHeight(TILE_SIZE);
-        setTranslateX(x * TILE_SIZE);
-        setTranslateY(y * TILE_SIZE);
-        startMoving();
-    }
-
-    public Enemy(int gridX, int gridY, Image enemyImage, GameMapMulti gameMapMulti) {
-        super(enemyImage);
-        this.gameMapMulti = gameMapMulti;
         this.x = gridX;
         this.y = gridY;
         setFitWidth(TILE_SIZE);
@@ -77,8 +65,6 @@ public class Enemy extends ImageView {
 
         if (gameMap.isPaused()) return;
 
-        else if (gameMapMulti.isPaused()) return;
-
 
         int[][] directions = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
         List<int[]> validMoves = new ArrayList<>();
@@ -114,10 +100,6 @@ public class Enemy extends ImageView {
         // Fin de moveRandomly
         if (x == gameMap.getPlayer().getGridX() && y == gameMap.getPlayer().getGridY()) {
             gameMap.gameOver();
-        }
-
-        if (x == gameMapMulti.getPlayer().getGridX() && y == gameMapMulti.getPlayer().getGridY()) {
-            gameMapMulti.gameOver();
         }
 
     }
