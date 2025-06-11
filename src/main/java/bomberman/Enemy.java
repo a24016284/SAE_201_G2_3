@@ -17,15 +17,26 @@ public class Enemy extends ImageView {
     private int x;
     private int y;
     private static final int TILE_SIZE = Player.TILE_SIZE;
-    private boolean alive = true;
 
     private final GameMap gameMap;
-
+    private final GameMapMulti gameMapMulti;
     private Timeline movementTimeline;
 
     public Enemy(int gridX, int gridY, Image enemyImage, GameMap gameMap) {
         super(enemyImage);
         this.gameMap = gameMap;
+        this.x = gridX;
+        this.y = gridY;
+        setFitWidth(TILE_SIZE);
+        setFitHeight(TILE_SIZE);
+        setTranslateX(x * TILE_SIZE);
+        setTranslateY(y * TILE_SIZE);
+        startMoving();
+    }
+
+    public Enemy(int gridX, int gridY, Image enemyImage, GameMapMulti gameMapMulti) {
+        super(enemyImage);
+        this.gameMapMulti = gameMapMulti;
         this.x = gridX;
         this.y = gridY;
         setFitWidth(TILE_SIZE);
@@ -43,7 +54,6 @@ public class Enemy extends ImageView {
         return y;
     }
 
-    public void setKilled() {this.alive = false;}
 
     private void startMoving() {
         movementTimeline = new Timeline(new KeyFrame(Duration.seconds(0.5), e -> moveRandomly()));
@@ -66,6 +76,8 @@ public class Enemy extends ImageView {
     private void moveRandomly() {
 
         if (gameMap.isPaused()) return;
+
+        else if (gameMapMulti.isPaused()) return;
 
 
         int[][] directions = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
@@ -97,9 +109,15 @@ public class Enemy extends ImageView {
             transition.play();
 
         }
+
+
         // Fin de moveRandomly
-        if (x == gameMap.getPlayer().getGridX() && y == gameMap.getPlayer().getGridY() && alive) {
+        if (x == gameMap.getPlayer().getGridX() && y == gameMap.getPlayer().getGridY()) {
             gameMap.gameOver();
+        }
+
+        if (x == gameMapMulti.getPlayer().getGridX() && y == gameMapMulti.getPlayer().getGridY()) {
+            gameMapMulti.gameOver();
         }
 
     }
