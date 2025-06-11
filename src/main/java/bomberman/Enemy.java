@@ -99,9 +99,6 @@ public class Enemy extends ImageView {
 
 
         // Fin de moveRandomly
-        if (x == gameMap.getPlayer().getGridX() && y == gameMap.getPlayer().getGridY()) {
-            gameMap.gameOver();
-        }
 
     }
 
