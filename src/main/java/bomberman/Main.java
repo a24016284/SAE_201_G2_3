@@ -19,7 +19,6 @@ public class Main extends Application {
 
     // Déclaration des objets MediaPlayer pour gérer différentes musiques et sons
     private static MediaPlayer backgroundMusic;  // Musique jouée en continu pendant le jeu
-    private static MediaPlayer gameOverMusic;    // Musique jouée en cas de game over
     private static MediaPlayer deathMusic;       // Son joué quand un joueur meurt
     private static MediaPlayer explosionSound;   // Effet sonore d'explosion
 
@@ -41,7 +40,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         try {
-            // playBackgroundMusic();
+            playBackgroundMusic();
 
             // Chargement du fichier FXML (interface graphique)
             BorderPane root = FXMLLoader.load(getClass().getResource("/bomberman/BomberMan.fxml"));
@@ -64,7 +63,7 @@ public class Main extends Application {
      */
     public static void playBackgroundMusic() {
         // Pour éviter la superposition de musiques, on peut arrêter toutes les musiques en cours
-        // stopAllMusic();
+        stopAllMusic();
 
         // Chargement du fichier audio
         URL resource = Main.class.getResource("/bomberman/audio/musique.mp3");
@@ -78,26 +77,8 @@ public class Main extends Application {
     }
 
     /**
-     * Joue la musique de fin de partie (game over).
-     */
-    /*
-    public static void playGameOverMusic() {
-        stopAllMusic(); // Stoppe toutes les autres musiques
-
-        URL resource = Main.class.getResource("/bomberman/audio/fatalité.mp3");
-        if (resource != null) {
-            Media media = new Media(resource.toExternalForm());
-            gameOverMusic = new MediaPlayer(media);
-            gameOverMusic.setVolume(0.7); // Volume légèrement plus élevé
-            gameOverMusic.play(); // Joue la musique de fin de partie
-        }
-    }
-    */
-
-    /**
      * Joue la musique de mort du joueur.
      */
-    /*
     public static void playDeathMusic() {
         stopAllMusic(); // Stoppe les autres sons
 
@@ -109,12 +90,10 @@ public class Main extends Application {
             deathMusic.play(); // Joue le son de mort
         }
     }
-    */
 
     /**
      * Joue le son d'explosion.
      */
-    /*
     public static void playExplosionSound() {
         URL resource = Main.class.getResource("/bomberman/audio/boom(1).mp3");
         if (resource != null) {
@@ -124,33 +103,28 @@ public class Main extends Application {
             explosionSound.play(); // Joue l'effet sonore
         }
     }
-    */
 
     /**
      * Arrête toutes les musiques ou sons en cours.
      */
-    /*
      public static void stopAllMusic() {
         if (backgroundMusic != null) {
             backgroundMusic.stop(); // Arrête la musique de fond
         }
-        if (gameOverMusic != null) {
-            gameOverMusic.stop(); // Arrête la musique de fin
+        if (explosionSound != null) {
+            explosionSound.stop(); // Arrête le son des explosions
         }
         if (deathMusic != null) {
             deathMusic.stop(); // Arrête le son de mort
         }
     }
-    */
 
     /**
      * Méthode appelée à la fermeture de l'application.
      * Elle permet d’arrêter tous les sons proprement.
      */
-    /*
     @Override
     public void stop() {
         stopAllMusic(); // Nettoyage des sons à la fin
     }
-    */
 }

@@ -371,7 +371,7 @@ public class GameMap {
      * Détruit les obstacles proches de la bombe et gère les effets secondaires (ennemis, power-ups, joueur).
      */
     private void destroyNearbyObstacles(int centerX, int centerY) {
-        //Main.playExplosionSound();
+        Main.playExplosionSound();
 
         Image floorImage = new Image(getClass().getResourceAsStream("/bomberman/images/floor.png"));
         Image explosionImage = new Image(getClass().getResourceAsStream("/bomberman/images/explosion.png"));
@@ -509,7 +509,7 @@ public class GameMap {
 
         gamePane.getChildren().remove(player);
 
-        //Main.playDeathMusic();
+        Main.playDeathMusic();
 
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -530,7 +530,7 @@ public class GameMap {
 
         gamePane.getChildren().remove(player);
 
-        //Main.playDeathMusic();
+        Main.playDeathMusic();
 
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);

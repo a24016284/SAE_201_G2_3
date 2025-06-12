@@ -335,7 +335,7 @@ public class GameMapMulti {
      * @param centerY position y du centre de l'explosion
      */
     private void destroyNearbyObstacles(Player bombOwner, int centerX, int centerY) {
-        //Main.playExplosionSound();
+        Main.playExplosionSound();
 
         Image floorImage = new Image(getClass().getResourceAsStream("/bomberman/images/floor.png"));
         Image explosionImage = new Image(getClass().getResourceAsStream("/bomberman/images/explosion.png"));
@@ -575,7 +575,7 @@ public class GameMapMulti {
         gamePane.getChildren().remove(player2);
 
         gamePane.setOnKeyPressed(null);
-        //Main.playDeathMusic();
+        Main.playDeathMusic();
 
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -612,7 +612,7 @@ public class GameMapMulti {
         String joueur = (killedPlayer == player) ? "Joueur 1" : "Joueur 2";
         gamePane.getChildren().remove(player);
         gamePane.getChildren().remove(player2);
-        //Main.playDeathMusic();
+        Main.playDeathMusic();
 
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
