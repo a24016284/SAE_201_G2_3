@@ -11,10 +11,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import static bomberman.AccueilController.choixJoueur1;
+import static bomberman.AccueilController.choixJoueur2;
 
 /**
  * Classe principale du plateau de jeu de Bomberman en mode multijoueur.
@@ -64,8 +66,6 @@ public class GameMapMulti {
     private int playerX = 1;
     private int playerY = 1;
     private boolean gameOverTriggered = false;
-    private String choixJoueur1;
-    private String choixJoueur2;
 
     // Système de points
     private int player1Score = 0;
@@ -86,8 +86,8 @@ public class GameMapMulti {
     @FXML
     public void initialize() {
         drawMap();
-        player = new Player(playerX, playerY, "Personnage 1");
-        player2 = new Player(MAP_WIDTH - 2, MAP_HEIGHT - 2, "Personnage 2");
+        player = new Player(playerX, playerY, choixJoueur1);
+        player2 = new Player(MAP_WIDTH - 2, MAP_HEIGHT - 2, choixJoueur2);
 
         gamePane.getChildren().addAll(player, player2);
 
@@ -100,16 +100,6 @@ public class GameMapMulti {
     }
 
     /** ------------------ MÉTHODES DE CONFIGURATION ------------------ */
-
-    /**
-     * Définit les images des deux joueurs.
-     * @param img1 nom de l'image pour le joueur 1
-     * @param img2 nom de l'image pour le joueur 2
-     */
-    public void setPlayerImages(String img1, String img2) {
-        this.choixJoueur1 = img1;
-        this.choixJoueur2 = img2;
-    }
 
     /**
      * Définit les labels d'affichage des scores.
