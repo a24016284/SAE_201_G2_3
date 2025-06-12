@@ -208,7 +208,7 @@ public class AccueilController {
             loader = new FXMLLoader(getClass().getResource("/bomberman/GameMulti.fxml"));
             remainingTime = 90;
             countdownLabel = new Label("1:30");
-            longueur = 480;
+            longueur = 505;
         } else {
             loader = new FXMLLoader(getClass().getResource("/bomberman/Game.fxml"));
             remainingTime = 600;
