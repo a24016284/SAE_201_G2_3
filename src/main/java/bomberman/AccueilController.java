@@ -244,12 +244,26 @@ public class AccueilController {
             // Score en mode multi
             if (modeMulti && controller instanceof GameMapMulti gameMultiController) {
                 // Image joueur 1
-                ImageView player1Face = new ImageView(new Image(getClass().getResourceAsStream("/bomberman/images/player1_face.png")));
+                String player1 = switch (choixJoueur1) {
+                    case "Personnage 1" -> "player1";
+                    case "Personnage 2" -> "player2";
+                    case "Personnage 3" -> "player3";
+                    case "Personnage 4" -> "player4";
+                    default -> "player1";
+                };
+                ImageView player1Face = new ImageView(new Image(getClass().getResourceAsStream("/bomberman/images/"+ player1 +"_face.png")));
                 player1Face.setFitWidth(45);
                 player1Face.setFitHeight(45);
 
                 // Image joueur 2
-                ImageView player2Face = new ImageView(new Image(getClass().getResourceAsStream("/bomberman/images/player2_face.png")));
+                String player2 = switch (choixJoueur2) {
+                    case "Personnage 1" -> "player1";
+                    case "Personnage 2" -> "player2";
+                    case "Personnage 3" -> "player3";
+                    case "Personnage 4" -> "player4";
+                    default -> "player1";
+                };
+                ImageView player2Face = new ImageView(new Image(getClass().getResourceAsStream("/bomberman/images/"+ player2 +"_face.png")));
                 player2Face.setFitWidth(45);
                 player2Face.setFitHeight(45);
 
