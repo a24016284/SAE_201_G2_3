@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+    Fichier FXML pour l'écran de sélection de personnage en mode solo
+-->
+
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Button?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.text.Font?>
-
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
+
+
 <BorderPane fx:controller="bomberman.AccueilController"
             xmlns:fx="http://javafx.com/fxml"
             xmlns="http://javafx.com/javafx/8"
@@ -17,46 +20,47 @@
             prefWidth="600"
             prefHeight="400">
 
-
-
-
+    <!-- Zone centrale du BorderPane contenant l'interface de sélection solo -->
     <center>
+
         <VBox fx:id="gamePane"
               spacing="20"
               alignment="CENTER">
+
+            <!-- Marges intérieures du conteneur principal -->
             <padding>
                 <Insets top="40" right="20" bottom="40" left="20"/>
             </padding>
 
+
             <Label text="SOLO" styleClass="label-title"/>
 
-
+            <!--   Description de l'objectif du mode solo -->
             <Label text=" Survivez à un maximum d'attaques de monstres"/>
 
-
+            <!--Section de sélection du personnage -->
             <VBox alignment="CENTER" spacing="20">
 
+                <!--  Interface de navigation pour la sélection du personnage -->
                 <HBox alignment="CENTER" spacing="10">
                     <Button fx:id="btnPrev" text="&lt;" onAction="#handlePrev" prefWidth="50"/>
+
                     <ImageView fx:id="imagePerso" fitWidth="150" fitHeight="150"/>
+
                     <Button fx:id="btnNext" text="&gt;" onAction="#handleNext" prefWidth="50"/>
                 </HBox>
 
             </VBox>
+
 
             <HBox alignment="CENTER" spacing="20">
                 <Button fx:id="playButton" text="Jouer" prefWidth="200"/>
                 <Button fx:id="backButton" text="Retour" prefWidth="200" onAction="#handleBack"/>
             </HBox>
 
+            <!--   Bouton de sortie de l'application-->
             <Button fx:id="exitButton" text="Quitter" prefWidth="200"/>
         </VBox>
     </center>
-
-
-
-
-
-
 
 </BorderPane>

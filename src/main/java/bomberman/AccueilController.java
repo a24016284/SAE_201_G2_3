@@ -1,12 +1,8 @@
-//AccueilController
 package bomberman;
-
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -27,34 +23,44 @@ import javafx.util.Duration;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Contrôleur de l'écran d'accueil du jeu Bomberman.
+ * Permet de choisir un personnage, lancer le jeu en mode solo ou multi,
+ * et gérer les scènes de transition.
+ */
 public class AccueilController {
 
+    // Boutons pour jouer ou quitter le jeu
     @FXML
     private Button playButton;
 
     @FXML
     private Button exitButton;
 
-
+    // Timer pour le compte à rebours
     private Timeline countdown;
-    private int remainingTime;
-    Label countdownLabel;
-    double longueur;
+    private int remainingTime; // Durée restante du jeu en secondes
+    Label countdownLabel;      // Label affichant le temps restant
+    double longueur;           // Hauteur de la fenêtre selon le mode
+
+    // Label pour afficher le score (mode solo)
     Label scoreLabel;
 
-    // Labels pour les scores en mode multi
+    // Labels pour afficher les scores en mode multijoueur
     private Label player1ScoreLabel;
     private Label player2ScoreLabel;
 
+    // Choix des personnages sélectionnés par les joueurs
     public static String choixJoueur1;
     public static String choixJoueur2;
 
-    // Éléments pour le joueur 1 (toujours présent)
+    // Image du personnage sélectionné (joueur 1)
     @FXML private ImageView imagePerso;
 
-    // Éléments pour le joueur 2 (seulement en mode multi)
+    // Image du personnage sélectionné (joueur 2 - mode multi)
     @FXML private ImageView imagePerso2;
 
+    // Chemins vers les images des personnages
     private String[] personnages = {
             "/bomberman/images/player1.png",
             "/bomberman/images/player2.png",
@@ -62,7 +68,7 @@ public class AccueilController {
             "/bomberman/images/player4.png"
     };
 
-    // Correspondance entre les index et les noms de personnages
+    // Noms correspondants aux personnages
     private String[] nomsPersonnages = {
             "Personnage 1",
             "Personnage 2",
@@ -70,239 +76,205 @@ public class AccueilController {
             "Personnage 4"
     };
 
-    // Index séparés pour chaque joueur
-    private int indexPersoActuelJ1 = 0;  // Pour joueur 1
-    private int indexPersoActuelJ2 = 1;  // Pour joueur 2 (commence sur un personnage différent)
+    // Indices des personnages actuellement sélectionnés
+    private int indexPersoActuelJ1 = 0;
+    private int indexPersoActuelJ2 = 1;
 
-    private boolean[] persoChoisi = new boolean[2];
-    private int joueurActuel = 0;
-    private String[] choixJoueurImages = new String[2];
-
-    // Variable pour savoir si on est en mode multi
+    // Vrai si on est en mode multijoueur
     private boolean modeMulti = false;
 
-
+    /**
+     * Méthode appelée automatiquement à l'initialisation du contrôleur.
+     * Elle configure les images, les choix de personnages et les boutons.
+     */
     @FXML
     public void initialize() {
-        // Détecter le mode en fonction de la présence des éléments du joueur 2
+        // On détecte le mode multi selon la présence d'un second ImageView
         modeMulti = (imagePerso2 != null);
 
-
-
-        // Initialiser les choix avec les personnages par défaut
+        // Initialiser les noms des personnages sélectionnés
         choixJoueur1 = nomsPersonnages[indexPersoActuelJ1];
         if (modeMulti) {
             choixJoueur2 = nomsPersonnages[indexPersoActuelJ2];
         }
 
-        // Initialiser les images
+        // Afficher les images
         updateImageJ1();
-        if (modeMulti) {
-            updateImageJ2();
-        }
+        if (modeMulti) updateImageJ2();
 
-        // Initialiser boutons seulement s'ils existent
-        if (playButton != null) {
-            playButton.setOnAction(this::lancerJeu);
-        }
-        if (exitButton != null) {
-            exitButton.setOnAction(e -> Platform.exit());
-        }
-
+        // Ajouter les actions des boutons
+        if (playButton != null) playButton.setOnAction(this::lancerJeu);
+        if (exitButton != null) exitButton.setOnAction(e -> Platform.exit());
     }
 
+    // Gestion de la sélection du personnage précédent pour le joueur 1
     @FXML
     private void handlePrev(ActionEvent event) {
-        indexPersoActuelJ1--;
-        if (indexPersoActuelJ1 < 0) indexPersoActuelJ1 = personnages.length - 1;
+        indexPersoActuelJ1 = (indexPersoActuelJ1 - 1 + personnages.length) % personnages.length;
         updateImageJ1();
-        // Mettre à jour le choix du joueur 1
         choixJoueur1 = nomsPersonnages[indexPersoActuelJ1];
     }
 
+    // Gestion de la sélection du personnage suivant pour le joueur 1
     @FXML
     private void handleNext(ActionEvent event) {
-        indexPersoActuelJ1++;
-        if (indexPersoActuelJ1 >= personnages.length) indexPersoActuelJ1 = 0;
+        indexPersoActuelJ1 = (indexPersoActuelJ1 + 1) % personnages.length;
         updateImageJ1();
-        // Mettre à jour le choix du joueur 1
         choixJoueur1 = nomsPersonnages[indexPersoActuelJ1];
     }
 
-    // Gestion du carrousel du joueur 2 (mode multi uniquement)
+    // Sélection précédente pour le joueur 2 (mode multi uniquement)
     @FXML
     private void handlePrev2(ActionEvent event) {
         if (modeMulti) {
-            indexPersoActuelJ2--;
-            if (indexPersoActuelJ2 < 0) indexPersoActuelJ2 = personnages.length - 1;
+            indexPersoActuelJ2 = (indexPersoActuelJ2 - 1 + personnages.length) % personnages.length;
             updateImageJ2();
-            // Mettre à jour le choix du joueur 2
             choixJoueur2 = nomsPersonnages[indexPersoActuelJ2];
         }
     }
 
+    // Sélection suivante pour le joueur 2 (mode multi uniquement)
     @FXML
     private void handleNext2(ActionEvent event) {
         if (modeMulti) {
-            indexPersoActuelJ2++;
-            if (indexPersoActuelJ2 >= personnages.length) indexPersoActuelJ2 = 0;
+            indexPersoActuelJ2 = (indexPersoActuelJ2 + 1) % personnages.length;
             updateImageJ2();
-            // Mettre à jour le choix du joueur 2
             choixJoueur2 = nomsPersonnages[indexPersoActuelJ2];
         }
     }
 
-    // Mise à jour de l'image du joueur 1
+    // Met à jour l'image du joueur 1
     private void updateImageJ1() {
         updatePlayerImage(imagePerso, indexPersoActuelJ1);
     }
 
-    // Mise à jour de l'image du joueur 2
+    // Met à jour l'image du joueur 2
     private void updateImageJ2() {
-        if (modeMulti ) {
-            updatePlayerImage(imagePerso2, indexPersoActuelJ2);
-        }
+        if (modeMulti) updatePlayerImage(imagePerso2, indexPersoActuelJ2);
     }
 
-    // Méthode générique pour mettre à jour une image de joueur
-    private void updatePlayerImage(ImageView imageView, int playerIndex) {
+    // Méthode générique pour changer l'image d'un joueur
+    private void updatePlayerImage(ImageView imageView, int index) {
         try {
-            InputStream imageStream = getClass().getResourceAsStream(personnages[playerIndex]);
-            Image image = new Image(imageStream);
-            imageView.setImage(image);
-
+            InputStream stream = getClass().getResourceAsStream(personnages[index]);
+            imageView.setImage(new Image(stream));
         } catch (Exception e) {
-            System.err.println("Erreur lors du chargement de l'image : " + e.getMessage());
+            System.err.println("Erreur image : " + e.getMessage());
         }
     }
 
-    private FXMLLoader lancementJeu(){
+    /**
+     * Lance la scène de jeu en mode solo.
+     * @param event Événement de clic
+     */
+    @FXML
+    public void JeuSolo(ActionEvent event) {
+        changerScene("/bomberman/Solo.fxml", event);
+    }
+
+    /**
+     * Lance la scène de jeu en mode multijoueur.
+     * @param event Événement de clic
+     */
+    @FXML
+    public void JeuMulti(ActionEvent event) {
+        changerScene("/bomberman/Multi.fxml", event);
+    }
+
+    // Retour à la page d’accueil principale
+    @FXML
+    private void handleBack(ActionEvent event) {
+        changerScene("/bomberman/BomberMan.fxml", event);
+    }
+
+    // Méthode utilitaire pour changer de scène
+    private void changerScene(String cheminFXML, ActionEvent event) {
+        try {
+            BorderPane root = FXMLLoader.load(getClass().getResource(cheminFXML));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 1160, 755));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Initialise la scène du jeu selon le mode choisi
+    private FXMLLoader lancementJeu() {
         FXMLLoader loader;
-        if(modeMulti){
+        if (modeMulti) {
             loader = new FXMLLoader(getClass().getResource("/bomberman/GameMulti.fxml"));
             remainingTime = 90;
             countdownLabel = new Label("1:30");
-            longueur  = 480;
-            return loader;
-        }
-        else{
+            longueur = 480;
+        } else {
             loader = new FXMLLoader(getClass().getResource("/bomberman/Game.fxml"));
             remainingTime = 600;
             countdownLabel = new Label("10:00");
-            longueur  = 510;
-            return loader;
+            longueur = 510;
         }
+        return loader;
     }
 
-
+    /**
+     * Lance le jeu en affichant la scène correspondante et initialise le score, le timer, etc.
+     * @param event Événement de clic sur "Play"
+     */
     private void lancerJeu(ActionEvent event) {
         try {
             FXMLLoader loader = lancementJeu();
             BorderPane root = loader.load();
-
-            // Récupérer le contrôleur génériquement
             Object controller = loader.getController();
 
-            // Créer la barre supérieure avec HBox pour l'alignement horizontal
+            // Barre supérieure contenant timer, score, vague, etc.
             HBox topBar = new HBox();
             topBar.setStyle("-fx-background-color: orange; -fx-padding: 10;");
             topBar.setAlignment(Pos.CENTER);
-            topBar.setSpacing(50); // Espacement entre les éléments
+            topBar.setSpacing(50);
 
-            // Créer le label du score (seulement en mode solo)
+            // Score en mode solo
             if (!modeMulti && controller instanceof GameMap gameController) {
                 scoreLabel = new Label("Score: 0");
                 scoreLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;");
-
-                // Lier le label du score à la propriété score du contrôleur
                 scoreLabel.textProperty().bind(gameController.scoreProperty().asString("Score: %d"));
             }
 
-            // Créer les éléments de score pour le mode multi
-            HBox player1ScoreBox = null;
-            HBox player2ScoreBox = null;
-
+            // Score en mode multi
             if (modeMulti && controller instanceof GameMapMulti gameMultiController) {
-                // Créer les images des joueurs
-                Image player1FaceImage = new Image(getClass().getResourceAsStream("/bomberman/images/player1_face.png"));
-                ImageView player1FaceView = new ImageView(player1FaceImage);
-                player1FaceView.setFitWidth(30);
-                player1FaceView.setFitHeight(30);
-
-                Image player2FaceImage = new Image(getClass().getResourceAsStream("/bomberman/images/player2_face.png"));
-                ImageView player2FaceView = new ImageView(player2FaceImage);
-                player2FaceView.setFitWidth(30);
-                player2FaceView.setFitHeight(30);
-
-                // Créer les labels de score simples
-                player1ScoreLabel = new Label("0");
-                player1ScoreLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;");
-
-                player2ScoreLabel = new Label("0");
-                player2ScoreLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;");
-
-                // Créer les HBox pour combiner image + score
-                player1ScoreBox = new HBox(10);
-                player1ScoreBox.setAlignment(Pos.CENTER_LEFT);
-                player1ScoreBox.getChildren().addAll(player1FaceView, player1ScoreLabel);
-
-                player2ScoreBox = new HBox(10);
-                player2ScoreBox.setAlignment(Pos.CENTER_RIGHT);
-                player2ScoreBox.getChildren().addAll(player2ScoreLabel, player2FaceView);
-
-                // Passer les références des labels au contrôleur
-                gameMultiController.setScoreLabels(player1ScoreLabel, player2ScoreLabel);
+                setupMultiScoreUI(gameMultiController, topBar);
             }
 
-            // Créer une VBox pour le timer et la vague (centré)
-            VBox timerAndWaveBox = new VBox();
-            timerAndWaveBox.setAlignment(Pos.CENTER);
-            timerAndWaveBox.setSpacing(5);
-
+            // Timer et vague (centré)
+            VBox timerBox = new VBox();
+            timerBox.setAlignment(Pos.CENTER);
+            timerBox.setSpacing(5);
             countdownLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;");
-            timerAndWaveBox.getChildren().add(countdownLabel);
+            timerBox.getChildren().add(countdownLabel);
 
-            // Si mode solo, ajouter le label de vague
             if (!modeMulti && controller instanceof GameMap gameController) {
                 Label waveLabel = new Label();
                 waveLabel.textProperty().bind(gameController.waveNumberProperty().asString("Vague %d"));
                 waveLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: white;");
-                timerAndWaveBox.getChildren().add(waveLabel);
+                timerBox.getChildren().add(waveLabel);
             }
 
-            // Organiser les éléments dans la barre supérieure
+            // Ajouter les éléments selon le mode
             if (!modeMulti) {
-                // Mode solo : Score à gauche, Timer + Vague au centre, espace vide à droite
-                Label spacer = new Label(); // Élément vide pour équilibrer
-                spacer.setStyle("-fx-font-size: 18px;");
-
-                topBar.getChildren().addAll(scoreLabel, timerAndWaveBox, spacer);
-
-                // Répartir l'espace équitablement
+                Label spacer = new Label();
+                topBar.getChildren().addAll(scoreLabel, timerBox, spacer);
                 HBox.setHgrow(scoreLabel, javafx.scene.layout.Priority.ALWAYS);
-                HBox.setHgrow(timerAndWaveBox, javafx.scene.layout.Priority.ALWAYS);
+                HBox.setHgrow(timerBox, javafx.scene.layout.Priority.ALWAYS);
                 HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
-
-                scoreLabel.setAlignment(Pos.CENTER_LEFT);
-                timerAndWaveBox.setAlignment(Pos.CENTER);
-                spacer.setAlignment(Pos.CENTER_RIGHT);
             } else {
-                // Mode multi : Images + Scores des joueurs à gauche et droite, timer au centre
-                topBar.getChildren().addAll(player1ScoreBox, timerAndWaveBox, player2ScoreBox);
-
-                // Répartir l'espace équitablement
-                HBox.setHgrow(player1ScoreBox, javafx.scene.layout.Priority.ALWAYS);
-                HBox.setHgrow(timerAndWaveBox, javafx.scene.layout.Priority.ALWAYS);
-                HBox.setHgrow(player2ScoreBox, javafx.scene.layout.Priority.ALWAYS);
-
-                player1ScoreBox.setAlignment(Pos.CENTER_LEFT);
-                timerAndWaveBox.setAlignment(Pos.CENTER);
-                player2ScoreBox.setAlignment(Pos.CENTER_RIGHT);
+                topBar.getChildren().addAll(player1ScoreLabel, timerBox, player2ScoreLabel);
+                HBox.setHgrow(player1ScoreLabel, javafx.scene.layout.Priority.ALWAYS);
+                HBox.setHgrow(timerBox, javafx.scene.layout.Priority.ALWAYS);
+                HBox.setHgrow(player2ScoreLabel, javafx.scene.layout.Priority.ALWAYS);
             }
 
             root.setTop(topBar);
 
-            // Compte à rebours
+            // Lancer le timer de jeu
             countdown = new Timeline(new KeyFrame(Duration.seconds(1), ev -> {
                 remainingTime--;
                 int minutes = remainingTime / 60;
@@ -317,17 +289,16 @@ public class AccueilController {
             countdown.setCycleCount(remainingTime);
             countdown.play();
 
-            // Appeler setGameTimer() quel que soit le type du contrôleur
+            // Lier le timer au contrôleur
             if (modeMulti && controller instanceof GameMapMulti gameMultiController) {
                 gameMultiController.setGameTimer(countdown);
             } else if (!modeMulti && controller instanceof GameMap gameController) {
                 gameController.setGameTimer(countdown);
             }
 
-            // Changement de scène
-            double largeur = 1160;
+            // Afficher la scène
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, largeur, longueur));
+            stage.setScene(new Scene(root, 1160, longueur));
             stage.show();
 
         } catch (IOException e) {
@@ -335,59 +306,41 @@ public class AccueilController {
         }
     }
 
-    private void showGameOver() {
-        // 🎵 MUSIQUE GAME OVER
-        //Main.playGameOverMusic();
+    // Configure l'affichage des scores en mode multijoueur
+    private void setupMultiScoreUI(GameMapMulti controller, HBox topBar) {
+        ImageView player1Face = new ImageView(new Image(getClass().getResourceAsStream("/bomberman/images/player1_face.png")));
+        player1Face.setFitWidth(30);
+        player1Face.setFitHeight(30);
 
+        ImageView player2Face = new ImageView(new Image(getClass().getResourceAsStream("/bomberman/images/player2_face.png")));
+        player2Face.setFitWidth(30);
+        player2Face.setFitHeight(30);
+
+        player1ScoreLabel = new Label("0");
+        player1ScoreLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;");
+
+        player2ScoreLabel = new Label("0");
+        player2ScoreLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;");
+
+        HBox player1Box = new HBox(10, player1Face, player1ScoreLabel);
+        player1Box.setAlignment(Pos.CENTER_LEFT);
+
+        HBox player2Box = new HBox(10, player2ScoreLabel, player2Face);
+        player2Box.setAlignment(Pos.CENTER_RIGHT);
+
+        topBar.getChildren().addAll(player1Box, new VBox(), player2Box);
+        controller.setScoreLabels(player1ScoreLabel, player2ScoreLabel);
+    }
+
+    // Affiche une alerte Game Over quand le temps est écoulé
+    private void showGameOver() {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Temps écoulé");
             alert.setHeaderText("Game Over");
             alert.setContentText("Vous avez perdu : le temps est écoulé !");
             alert.showAndWait();
-            Platform.exit(); // Ferme le jeu
+            Platform.exit();
         });
     }
-
-    @FXML
-    public void JeuSolo(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/bomberman/Solo.fxml"));
-            BorderPane root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 1160, 755));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    public void JeuMulti(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/bomberman/Multi.fxml"));
-            BorderPane root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 1160, 755));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void handleBack(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/bomberman/BomberMan.fxml"));
-            BorderPane root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 1160, 755));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
-
-
-

@@ -1,4 +1,5 @@
 package bomberman;
+
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -14,9 +15,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Classe principale du plateau de jeu de Bomberman en mode multijoueur.
+ * Elle gère l'affichage de la carte, les deux joueurs, les ennemis,
+ * la logique des bombes, des collisions et le système de points.
+ */
 public class GameMapMulti {
 
     static final int TILE_SIZE = Player.TILE_SIZE;
+
+    /**
+     * Carte du jeu représentée par une grille de caractères.
+     * # = mur, * = obstacle destructible, espace = sol.
+     */
     static final String[] MAP = {
             "#############################",
             "# ****  *   *       *  **   #",
@@ -44,7 +55,6 @@ public class GameMapMulti {
     private Label player2ScoreLabel;
 
     private boolean isPaused = false;
-
     private final List<Enemy> enemies = new ArrayList<>();
     private final List<Bomb> bombs = new ArrayList<>();
 
@@ -62,11 +72,16 @@ public class GameMapMulti {
     private static final int ENEMY_KILL_POINTS = 1;
     private static final int PLAYER_KILL_POINTS = 3;
 
+    // Cooldown pour les bombes
     private long lastBombTime = 0;
     private static final long BOMB_COOLDOWN = 1500;
 
     private Timeline gameTimer;
 
+    /**
+     * Initialise la carte du jeu, les deux joueurs et les ennemis.
+     * Méthode appelée automatiquement lors du chargement FXML.
+     */
     @FXML
     public void initialize() {
         drawMap();
@@ -83,34 +98,82 @@ public class GameMapMulti {
         gamePane.setOnKeyPressed(this::handleKeyPressed);
     }
 
+    /** ------------------ MÉTHODES DE CONFIGURATION ------------------ */
+
+    /**
+     * Définit les images des deux joueurs.
+     * @param img1 nom de l'image pour le joueur 1
+     * @param img2 nom de l'image pour le joueur 2
+     */
     public void setPlayerImages(String img1, String img2) {
         this.choixJoueur1 = img1;
         this.choixJoueur2 = img2;
     }
 
+    /**
+     * Définit les labels d'affichage des scores.
+     * @param player1ScoreLabel label pour le score du joueur 1
+     * @param player2ScoreLabel label pour le score du joueur 2
+     */
+    public void setScoreLabels(Label player1ScoreLabel, Label player2ScoreLabel) {
+        this.player1ScoreLabel = player1ScoreLabel;
+        this.player2ScoreLabel = player2ScoreLabel;
+        updateScoreDisplay();
+    }
+
+    /** ------------------ MÉTHODES D'ACCÈS AUX JOUEURS ------------------ */
+
+    /**
+     * @return le joueur principal (joueur 1)
+     */
+    public Player getPlayer() {
+        return player;
+    }
+
+    /**
+     * @return le second joueur (joueur 2)
+     */
     public Player getPlayer2() {
         return player2;
     }
 
-    // Méthodes pour gérer les scores
+    /** ------------------ MÉTHODES LIÉES AU SCORE ------------------ */
+
+    /**
+     * @return le score actuel du joueur 1
+     */
     public int getPlayer1Score() {
         return player1Score;
     }
 
+    /**
+     * @return le score actuel du joueur 2
+     */
     public int getPlayer2Score() {
         return player2Score;
     }
 
+    /**
+     * Ajoute des points au score du joueur 1.
+     * @param points nombre de points à ajouter
+     */
     private void addPointsToPlayer1(int points) {
         player1Score += points;
         updateScoreDisplay();
     }
 
+    /**
+     * Ajoute des points au score du joueur 2.
+     * @param points nombre de points à ajouter
+     */
     private void addPointsToPlayer2(int points) {
         player2Score += points;
         updateScoreDisplay();
     }
 
+    /**
+     * Met à jour l'affichage des scores dans l'interface.
+     */
     private void updateScoreDisplay() {
         if (player1ScoreLabel != null) {
             player1ScoreLabel.setText(String.valueOf(player1Score));
@@ -120,6 +183,11 @@ public class GameMapMulti {
         }
     }
 
+    /** ------------------ MÉTHODES DE DESSIN ET AFFICHAGE ------------------ */
+
+    /**
+     * Dessine la carte à l'écran en fonction des caractères de la grille MAP.
+     */
     private void drawMap() {
         Image wallImage = new Image(getClass().getResourceAsStream("/bomberman/images/wall.png"));
         Image obstacleImage = new Image(getClass().getResourceAsStream("/bomberman/images/obstacle.png"));
@@ -147,6 +215,11 @@ public class GameMapMulti {
         }
     }
 
+    /**
+     * Ajoute un nombre spécifique d'ennemis à des positions aléatoires sur la carte.
+     * Les ennemis ne peuvent pas apparaître sur les murs, obstacles ou près des joueurs.
+     * @param numberOfEnemies nombre d'ennemis à ajouter
+     */
     private void addEnemies(int numberOfEnemies) {
         Image enemyImage = new Image(getClass().getResourceAsStream("/bomberman/images/enemy.png"));
         Random random = new Random();
@@ -170,10 +243,19 @@ public class GameMapMulti {
         }
     }
 
+    /** ------------------ MÉTHODES DE GESTION DU JEU ------------------ */
+
+    /**
+     * Définit le timer principal du jeu.
+     * @param gameTimer le timer à utiliser
+     */
     public void setGameTimer(Timeline gameTimer) {
         this.gameTimer = gameTimer;
     }
 
+    /**
+     * Met le jeu en pause.
+     */
     public void pauseGame() {
         isPaused = true;
         for (Enemy enemy : enemies) {
@@ -184,6 +266,9 @@ public class GameMapMulti {
         }
     }
 
+    /**
+     * Reprend le jeu après une pause.
+     */
     public void resumeGame() {
         isPaused = false;
         for (Enemy enemy : enemies) {
@@ -194,6 +279,37 @@ public class GameMapMulti {
         }
     }
 
+    /**
+     * @return true si le jeu est en pause, false sinon
+     */
+    public boolean isPaused() {
+        return isPaused;
+    }
+
+    /**
+     * @return true si le jeu est terminé, false sinon
+     */
+    public boolean isGameOverTriggered() {
+        return gameOverTriggered;
+    }
+
+    /**
+     * Définit l'état de fin de jeu.
+     * @param gameOverTriggered true pour terminer le jeu, false sinon
+     */
+    public void setGameOverTriggered(boolean gameOverTriggered) {
+        this.gameOverTriggered = gameOverTriggered;
+    }
+
+    /** ------------------ MÉTHODES DE GESTION DES BOMBES ------------------ */
+
+    /**
+     * Place une bombe à la position spécifiée par le joueur donné.
+     * Respecte le cooldown entre les bombes.
+     * @param bombPlacer le joueur qui place la bombe
+     * @param x position x de la bombe
+     * @param y position y de la bombe
+     */
     private void placeBomb(Player bombPlacer, int x, int y) {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastBombTime < BOMB_COOLDOWN) {
@@ -216,6 +332,13 @@ public class GameMapMulti {
         explosionDelay.play();
     }
 
+    /**
+     * Détruit les obstacles autour de la position d'explosion d'une bombe.
+     * Gère également les dégâts aux joueurs et ennemis, ainsi que l'attribution des points.
+     * @param bombOwner le joueur propriétaire de la bombe
+     * @param centerX position x du centre de l'explosion
+     * @param centerY position y du centre de l'explosion
+     */
     private void destroyNearbyObstacles(Player bombOwner, int centerX, int centerY) {
         //Main.playExplosionSound();
 
@@ -223,6 +346,7 @@ public class GameMapMulti {
         Image explosionImage = new Image(getClass().getResourceAsStream("/bomberman/images/explosion.png"));
         List<ImageView> explosionEffects = new ArrayList<>();
 
+        // Directions d'explosion : centre et 4 directions cardinales
         int[][] directions = {
                 {0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}
         };
@@ -234,16 +358,19 @@ public class GameMapMulti {
             if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT) {
                 char tile = MAP[y].charAt(x);
 
+                // Destruction des obstacles
                 if (tile == '*') {
                     StringBuilder row = new StringBuilder(MAP[y]);
                     row.setCharAt(x, ' ');
                     MAP[y] = row.toString();
 
+                    // Suppression visuelle de l'obstacle
                     gamePane.getChildren().removeIf(node ->
                             node instanceof ImageView &&
                                     ((ImageView) node).getX() == x * TILE_SIZE &&
                                     ((ImageView) node).getY() == y * TILE_SIZE);
 
+                    // Placement du sol à la place
                     ImageView floor = new ImageView(floorImage);
                     floor.setFitWidth(TILE_SIZE);
                     floor.setFitHeight(TILE_SIZE);
@@ -252,6 +379,7 @@ public class GameMapMulti {
                     gamePane.getChildren().add(0, floor);
                 }
 
+                // Effet visuel d'explosion
                 ImageView explosion = new ImageView(explosionImage);
                 explosion.setFitWidth(TILE_SIZE);
                 explosion.setFitHeight(TILE_SIZE);
@@ -260,14 +388,14 @@ public class GameMapMulti {
                 gamePane.getChildren().add(explosion);
                 explosionEffects.add(explosion);
 
-                // Vérifier les ennemis tués et attribuer des points
+                // Vérification des ennemis tués et attribution des points
                 List<Enemy> enemiesToRemove = new ArrayList<>();
                 for (Enemy enemy : enemies) {
                     if (enemy.getGridX() == x && enemy.getGridY() == y) {
                         gamePane.getChildren().remove(enemy);
                         enemiesToRemove.add(enemy);
 
-                        // Attribuer des points au joueur qui a posé la bombe
+                        // Attribution des points au joueur qui a posé la bombe
                         if (bombOwner == player) {
                             addPointsToPlayer1(ENEMY_KILL_POINTS);
                             System.out.println("Joueur 1 gagne " + ENEMY_KILL_POINTS + " point(s) pour avoir tué un ennemi!");
@@ -279,7 +407,7 @@ public class GameMapMulti {
                 }
                 enemies.removeAll(enemiesToRemove);
 
-                // Vérifier si un joueur est tué et attribuer des points à l'adversaire
+                // Vérification si un joueur est tué et attribution des points à l'adversaire
                 if (player.getGridX() == x && player.getGridY() == y) {
                     if (bombOwner == player2) {
                         addPointsToPlayer2(PLAYER_KILL_POINTS);
@@ -296,15 +424,21 @@ public class GameMapMulti {
             }
         }
 
+        // Nettoyage des effets visuels d'explosion après un délai
         PauseTransition cleanup = new PauseTransition(Duration.millis(300));
         cleanup.setOnFinished(e -> gamePane.getChildren().removeAll(explosionEffects));
         cleanup.play();
     }
 
-    public boolean isPaused() {
-        return isPaused;
-    }
+    /** ------------------ MÉTHODES DE MOUVEMENT ------------------ */
 
+    /**
+     * Déplace un joueur dans une direction donnée s'il n'y a pas d'obstacle.
+     * @param player le joueur à déplacer
+     * @param dx déplacement horizontal (-1, 0, ou 1)
+     * @param dy déplacement vertical (-1, 0, ou 1)
+     * @param direction direction du mouvement pour l'animation
+     */
     private void movePlayer(Player player, int dx, int dy, String direction) {
         int newX = player.getGridX() + dx;
         int newY = player.getGridY() + dy;
@@ -313,11 +447,14 @@ public class GameMapMulti {
         if (newX >= 0 && newX < MAP_WIDTH && newY >= 0 && newY < MAP_HEIGHT) {
             char destination = MAP[newY].charAt(newX);
             if (destination != '#' && destination != '*') {
+                // Vérification des collisions avec les bombes
                 for (Bomb bomb : bombs) {
                     if (bomb.getGridX() == newX && bomb.getGridY() == newY) return;
                 }
+                // Vérification des collisions avec l'autre joueur
                 if ((player != player2) && player2.getGridX() == newX && player2.getGridY() == newY) return;
 
+                // Vérification des collisions avec les ennemis
                 for (Enemy enemy : enemies) {
                     if (enemy.getGridX() == newX && enemy.getGridY() == newY) {
                         gameOver();
@@ -329,7 +466,17 @@ public class GameMapMulti {
         }
     }
 
+    /** ------------------ MÉTHODES DE GESTION DES ÉVÉNEMENTS ------------------ */
+
+    /**
+     * Gère les événements clavier pour contrôler les deux joueurs.
+     * Joueur 1 : ZQSD + Espace pour les bombes
+     * Joueur 2 : Flèches directionnelles + M pour les bombes
+     * Ctrl + Espace : Pause/Reprendre
+     * @param event l'événement clavier
+     */
     private void handleKeyPressed(KeyEvent event) {
+        // Gestion de la pause avec Ctrl + Espace
         if (event.getCode() == javafx.scene.input.KeyCode.SPACE && event.isControlDown()) {
             if (isPaused) {
                 resumeGame();
@@ -349,13 +496,16 @@ public class GameMapMulti {
 
         if (isPaused || gameOverTriggered) return;
 
+        // Contrôles des joueurs
         switch (event.getCode()) {
+            // Joueur 1 (ZQSD)
             case Z -> movePlayer(player, 0, -1, "HAUT");
             case S -> movePlayer(player, 0, 1, "BAS");
             case Q -> movePlayer(player, -1, 0, "GAUCHE");
             case D -> movePlayer(player, 1, 0, "DROITE");
             case SPACE -> placeBomb(player, player.getGridX(), player.getGridY());
 
+            // Joueur 2 (Flèches)
             case UP -> movePlayer(player2, 0, -1, "HAUT");
             case DOWN -> movePlayer(player2, 0, 1, "BAS");
             case LEFT -> movePlayer(player2, -1, 0, "GAUCHE");
@@ -364,10 +514,12 @@ public class GameMapMulti {
         }
     }
 
-    public Player getPlayer() {
-        return player;
-    }
+    /** ------------------ MÉTHODES DE FIN DE JEU ------------------ */
 
+    /**
+     * Termine le jeu suite à une collision avec un ennemi.
+     * Affiche les scores finaux et détermine le vainqueur.
+     */
     public void gameOver() {
         if (gameOverTriggered) return;
         gameOverTriggered = true;
@@ -398,14 +550,10 @@ public class GameMapMulti {
         });
     }
 
-    public boolean isGameOverTriggered() {
-        return gameOverTriggered;
-    }
-
-    public void setGameOverTriggered(boolean gameOverTriggered) {
-        this.gameOverTriggered = gameOverTriggered;
-    }
-
+    /**
+     * Termine le jeu suite à la mort d'un joueur par une bombe.
+     * Affiche les scores finaux et détermine le vainqueur.
+     */
     private void showBombKilledMessage() {
         if (gameOverTriggered) return;
         gameOverTriggered = true;
@@ -433,6 +581,11 @@ public class GameMapMulti {
         });
     }
 
+    /**
+     * Termine le jeu suite à la mort d'un joueur par une explosion.
+     * Affiche les scores finaux et détermine le vainqueur.
+     * @param killedPlayer le joueur qui a été tué
+     */
     private void showExplosionKilledMessage(Player killedPlayer) {
         if (gameOverTriggered) return;
         gameOverTriggered = true;
@@ -461,12 +614,5 @@ public class GameMapMulti {
             alert.showAndWait();
             Platform.exit();
         });
-    }
-
-    public void setScoreLabels(Label player1ScoreLabel, Label player2ScoreLabel) {
-        this.player1ScoreLabel = player1ScoreLabel;
-        this.player2ScoreLabel = player2ScoreLabel;
-        // Mettre à jour l'affichage initial
-        updateScoreDisplay();
     }
 }

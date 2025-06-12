@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+    Fichier FXML pour l'écran de sélection de personnages en mode multijoueur
+-->
+
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Button?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.text.Font?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
+
 
 <BorderPane fx:controller="bomberman.AccueilController"
             xmlns:fx="http://javafx.com/fxml"
@@ -17,21 +20,32 @@
             prefWidth="600"
             prefHeight="400">
 
+    <!-- Zone centrale du BorderPane contenant l'interface de sélection -->
     <center>
         <VBox fx:id="gamePane"
               spacing="20"
               alignment="CENTER">
+
+            <!-- Marges intérieures du conteneur principal -->
             <padding>
                 <Insets top="40" right="20" bottom="40" left="20"/>
             </padding>
 
+            <!-- Titre de l'écran avec style CSS personnalisé -->
             <Label text="MULTI-JOUEUR" styleClass="label-title"/>
+
+            <!-- Description des objectifs du mode multijoueur -->
             <Label text="Eliminez vos énemies et les monstres pour marquer un maximum de points "/>
 
-            <!-- Section pour les deux joueurs -->
+            <!--  Section principale de sélection des personnages  -->
             <HBox alignment="CENTER" spacing="20">
+
+                <!--   Section de sélection pour le Joueur 1  -->
                 <VBox alignment="CENTER">
-                    <Label  text="Joueur 1" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <!-- Titre du joueur 1 avec style inline -->
+                    <Label text="Joueur 1" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+                    <!-- Interface de sélection du personnage pour le Joueur 1 -->
                     <HBox alignment="CENTER" spacing="10">
                         <Button fx:id="btnPrev" text="&lt;" onAction="#handlePrev" prefWidth="50"/>
                         <ImageView fx:id="imagePerso" fitWidth="150" fitHeight="150"/>
@@ -39,8 +53,15 @@
                     </HBox>
                 </VBox>
 
+                <!--
+                    Section de sélection pour le Joueur 2
+                    Structure identique au Joueur 1
+                -->
                 <VBox alignment="CENTER">
-                    <Label  text="Joueur 2" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <!-- Titre du joueur 2 avec style inline -->
+                    <Label text="Joueur 2" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+                    <!--  Interface de sélection du personnage pour le Joueur 2-->
                     <HBox alignment="CENTER" spacing="10">
                         <Button fx:id="btnPrev2" text="&lt;" onAction="#handlePrev2" prefWidth="50"/>
                         <ImageView fx:id="imagePerso2" fitWidth="150" fitHeight="150"/>
@@ -50,11 +71,13 @@
 
             </HBox>
 
+            <!--  Section des boutons d'action principaux -->
             <HBox alignment="CENTER" spacing="20">
                 <Button fx:id="playButton" text="Jouer" prefWidth="200"/>
                 <Button fx:id="backButton" text="Retour" prefWidth="200" onAction="#handleBack"/>
             </HBox>
 
+            <!-- Bouton de sortie de l'application -->
             <Button fx:id="exitButton" text="Quitter" prefWidth="200"/>
         </VBox>
     </center>

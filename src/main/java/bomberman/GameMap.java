@@ -1,4 +1,3 @@
-//GameMap
 package bomberman;
 
 import javafx.animation.PauseTransition;
@@ -7,7 +6,6 @@ import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -15,16 +13,25 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import static bomberman.AccueilController.choixJoueur1;
 
+/**
+ * Classe principale du plateau de jeu de Bomberman.
+ * Elle gère l'affichage de la carte, les vagues d'ennemis,
+ * la logique des bombes, des collisions et des power-ups.
+ */
 public class GameMap {
 
     static final int TILE_SIZE = Player.TILE_SIZE;
+
+    /**
+     * Carte du jeu représentée par une grille de caractères.
+     * # = mur, * = obstacle destructible, espace = sol.
+     */
     static final String[] MAP = {
             "#############################",
             "# ****  *   *       *  **   #",
@@ -46,7 +53,6 @@ public class GameMap {
     private Pane gamePane;
 
     private boolean isPaused = false;
-
     private final List<Enemy> enemies = new ArrayList<>();
     private final List<Bomb> bombs = new ArrayList<>();
 
@@ -54,17 +60,18 @@ public class GameMap {
     private int playerX = 1;
     private int playerY = 1;
     private boolean gameOverTriggered = false;
-
-    // Cooldown pour les bombes
     private long lastBombTime = 0;
 
     private Timeline gameTimer;
+
     private IntegerProperty waveNumber = new SimpleIntegerProperty(1);
-
-    // Ajout du compteur de points
     private IntegerProperty score = new SimpleIntegerProperty(0);
-    private static final int POINTS_PER_WAVE = 1; // Points gagnés par vague
+    private static final int POINTS_PER_WAVE = 1;
 
+    /**
+     * Initialise la carte du jeu, le joueur et les ennemis.
+     * Méthode appelée automatiquement lors du chargement FXML.
+     */
     @FXML
     public void initialize() {
         drawMap();
@@ -77,119 +84,74 @@ public class GameMap {
         gamePane.setOnKeyPressed(this::handleKeyPressed);
     }
 
+    /** ------------------ MÉTHODES DE GESTION DE VAGUE ------------------ */
+
     /**
-     * Démarre une nouvelle vague
+     * Démarre une nouvelle vague de jeu.
+     * @param i le numéro de la nouvelle vague.
      */
     public void newWave(int i) {
-
         if (i > 1) {
             addScore(POINTS_PER_WAVE);
         }
-
-        // Nettoyer l'état du jeu
         clearGameState();
-
-        // Restaurer la carte originale
         restoreOriginalMap();
-
-        // Réinitialiser les variables de jeu
         resetGameVariables();
-
-        // Réinitialise la carte
         drawMap();
-
-        // Recréer le joueur
         recreatePlayer();
+        addEnemies(1 + 2 * i);
 
-        // Rajouter des ennemis
-        addEnemies(1 + 2*i);
-
-        // Remettre le focus
         Platform.runLater(() -> {
             gamePane.requestFocus();
             gamePane.setOnKeyPressed(this::handleKeyPressed);
         });
     }
 
+    /**
+     * Incrémente le numéro de vague.
+     */
+    public void nextWave() {
+        this.waveNumber.set(waveNumber.get() + 1);
+    }
+
+    public int getWaveNumber() {
+        return waveNumber.get();
+    }
+
+    public IntegerProperty waveNumberProperty() {
+        return waveNumber;
+    }
+
+    /** ------------------ MÉTHODES LIÉES AU SCORE ------------------ */
+
+    /**
+     * Ajoute un certain nombre de points au score.
+     * @param points points à ajouter
+     */
     public void addScore(int points) {
         score.set(score.get() + points);
         System.out.println("Score: " + score.get() + " (+" + points + " points)");
     }
 
     /**
-     * Retourne le score actuel
+     * @return le score actuel
      */
     public int getScore() {
         return score.get();
     }
 
     /**
-     * Retourne la propriété score pour le binding
+     * @return la propriété de score pour le binding
      */
     public IntegerProperty scoreProperty() {
         return score;
     }
 
+    /** ------------------ MÉTHODES DE DESSIN ET RÉINITIALISATION ------------------ */
 
     /**
-     * Nettoie l'état actuel du jeu
+     * Dessine la carte à l'écran en fonction des caractères de la grille MAP.
      */
-    private void clearGameState() {
-        // Vider le pane de jeu
-        gamePane.getChildren().clear();
-
-        // Vider les listes
-        enemies.clear();
-        bombs.clear();
-
-        // Supprimer les références
-        if (player != null) {
-            player = null;
-        }
-    }
-
-    /**
-     * Restaure la carte originale (sans les modifications des bombes)
-     */
-    private void restoreOriginalMap() {
-        // Carte originale (vous pouvez la stocker comme constante)
-        String[] originalMap = {
-                "#############################",
-                "# ****  *   *       *  **   #",
-                "# #*# # #*# # #*# #*# # # # #",
-                "# *   * ***  **   *  **  ** #",
-                "# # # #*# #*# # # # # # # # #",
-                "# *  **   * * * ***  **   * #",
-                "# # #*# #*# # #*# # # # #*# #",
-                "# *   **  *   *  ** * *   * #",
-                "# # # #*# # # #*#*# # #*# # #",
-                "#   **  **  **  *   ***  *  #",
-                "#############################"
-        };
-
-        // Copier la carte originale
-        System.arraycopy(originalMap, 0, MAP, 0, MAP.length);
-    }
-
-    /**
-     * Remet les variables de jeu à leurs valeurs initiales
-     */
-    private void resetGameVariables() {
-        playerX = 1;
-        playerY = 1;
-        gameOverTriggered = false;
-        isPaused = false;
-        lastBombTime = 0;
-    }
-
-    /**
-     * Recrée le joueur à sa position initiale
-     */
-    private void recreatePlayer() {
-        player = new Player(playerX, playerY, choixJoueur1);
-        gamePane.getChildren().add(player);
-    }
-
     private void drawMap() {
         Image wallImage = new Image(getClass().getResourceAsStream("/bomberman/images/wall.png"));
         Image obstacleImage = new Image(getClass().getResourceAsStream("/bomberman/images/obstacle.png"));
@@ -217,6 +179,61 @@ public class GameMap {
         }
     }
 
+    /**
+     * Vide les objets présents dans le jeu.
+     */
+    private void clearGameState() {
+        gamePane.getChildren().clear();
+        enemies.clear();
+        bombs.clear();
+        player = null;
+    }
+
+    /**
+     * Restaure la carte à son état initial.
+     */
+    private void restoreOriginalMap() {
+        String[] originalMap = {
+                "#############################",
+                "# ****  *   *       *  **   #",
+                "# #*# # #*# # #*# #*# # # # #",
+                "# *   * ***  **   *  **  ** #",
+                "# # # #*# #*# # # # # # # # #",
+                "# *  **   * * * ***  **   * #",
+                "# # #*# #*# # #*# # # # #*# #",
+                "# *   **  *   *  ** * *   * #",
+                "# # # #*# # # #*#*# # #*# # #",
+                "#   **  **  **  *   ***  *  #",
+                "#############################"
+        };
+        System.arraycopy(originalMap, 0, MAP, 0, MAP.length);
+    }
+
+    /**
+     * Réinitialise les variables liées à l'état du jeu.
+     */
+    private void resetGameVariables() {
+        playerX = 1;
+        playerY = 1;
+        gameOverTriggered = false;
+        isPaused = false;
+        lastBombTime = 0;
+    }
+
+    /**
+     * Recrée le joueur à sa position initiale.
+     */
+    private void recreatePlayer() {
+        player = new Player(playerX, playerY, choixJoueur1);
+        gamePane.getChildren().add(player);
+    }
+
+    /** ------------------ MÉTHODES DE GESTION DES ENNEMIS ------------------ */
+
+    /**
+     * Ajoute un certain nombre d'ennemis à la carte, placés aléatoirement.
+     * @param numberOfEnemies nombre d'ennemis à ajouter
+     */
     private void addEnemies(int numberOfEnemies) {
         Image enemyImage = new Image(getClass().getResourceAsStream("/bomberman/images/enemy.png"));
         Random random = new Random();
@@ -227,7 +244,7 @@ public class GameMap {
             int x = random.nextInt(MAP[0].length());
 
             char tile = MAP[y].charAt(x);
-            boolean isPlayerClose = (x-2 <= playerX && playerX <= x+2 && y-2<= playerY && playerY <= y+2);
+            boolean isPlayerClose = (x - 2 <= playerX && playerX <= x + 2 && y - 2 <= playerY && playerY <= y + 2);
             boolean isTileEmpty = (tile == ' ');
             boolean alreadyEnemy = enemies.stream().anyMatch(e -> e.getGridX() == x && e.getGridY() == y);
 
@@ -240,40 +257,65 @@ public class GameMap {
         }
     }
 
-    public int getWaveNumber() { return waveNumber.get(); }
+    /** ------------------ MÉTHODES DE JEU ------------------ */
 
-    public void nextWave() {
-        this.waveNumber.set(waveNumber.get()+1);
-    }
-
-    public IntegerProperty waveNumberProperty() {
-        return waveNumber;
-    }
-
-    public void setGameTimer(Timeline gameTimer) {
-        this.gameTimer = gameTimer;
-    }
-
-    public void pauseGame() {
-        isPaused = true;
-        for (Enemy enemy : enemies) {
-            enemy.pauseMovement();
+    /**
+     * Gère l'appui des touches clavier pour le déplacement ou la pose de bombe.
+     * @param event événement de touche
+     */
+    private void handleKeyPressed(KeyEvent event) {
+        if (event.getCode() == KeyCode.SPACE && event.isControlDown()) {
+            if (isPaused) {
+                resumeGame();
+            } else {
+                pauseGame();
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Pause");
+                    alert.setHeaderText(null);
+                    alert.setContentText(" Le jeu est en pause.\nAppuyez sur Ctrl + Espace ou fermez cette boîte pour reprendre.");
+                    alert.showAndWait();
+                    resumeGame();
+                });
+            }
+            return;
         }
-        if (gameTimer != null) {
-            gameTimer.pause();
+
+        if (isPaused || gameOverTriggered) return;
+
+        int newX = player.getGridX();
+        int newY = player.getGridY();
+
+        switch (event.getCode()) {
+            case Z, UP -> { newY--; player.setDirection("HAUT"); }
+            case S, DOWN -> { newY++; player.setDirection("BAS"); }
+            case Q, LEFT -> { newX--; player.setDirection("GAUCHE"); }
+            case D, RIGHT -> { newX++; player.setDirection("DROITE"); }
+            case SPACE -> { placeBomb(player, player.getGridX(), player.getGridY()); return; }
+            default -> { return; }
+        }
+
+        if (newX >= 0 && newX < MAP_WIDTH && newY >= 0 && newY < MAP_HEIGHT) {
+            char destination = MAP[newY].charAt(newX);
+            if (destination != '#' && destination != '*' && destination != 'B') {
+                for (Enemy enemy : enemies) {
+                    if (enemy.getGridX() == newX && enemy.getGridY() == newY) {
+                        if (player.getShield() != 0) player.lowerShield();
+                        else gameOver();
+                        return;
+                    }
+                }
+                player.moveToAnimated(newX, newY);
+                if (destination == 'C') player.powerupCooldown();
+                else if (destination == 'R') player.powerupRange();
+                else if (destination == 'S') player.powerupShield();
+            }
         }
     }
 
-    public void resumeGame() {
-        isPaused = false;
-        for (Enemy enemy : enemies) {
-            enemy.resumeMovement();
-        }
-        if (gameTimer != null) {
-            gameTimer.play();
-        }
-    }
-
+    /**
+     * Place une bombe à l'endroit du joueur si le cooldown est respecté.
+     */
     private void placeBomb(Player player, int x, int y) {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastBombTime < player.getBombCooldown()) {
@@ -286,6 +328,7 @@ public class GameMap {
         Bomb bomb = new Bomb(x, y);
         bombs.add(bomb);
         gamePane.getChildren().add(bomb);
+
         StringBuilder row = new StringBuilder(MAP[y]);
         row.setCharAt(x, 'B');
         MAP[y] = row.toString();
@@ -299,9 +342,10 @@ public class GameMap {
         explosionDelay.play();
     }
 
-
+    /**
+     * Détruit les obstacles proches de la bombe et gère les effets secondaires (ennemis, power-ups, joueur).
+     */
     private void destroyNearbyObstacles(int centerX, int centerY) {
-
         //Main.playExplosionSound();
 
         Image floorImage = new Image(getClass().getResourceAsStream("/bomberman/images/floor.png"));
@@ -374,14 +418,14 @@ public class GameMap {
                     }
                 }
                 enemies.removeAll(enemiesToRemove);
-                if (enemies.isEmpty()){
+                if (enemies.isEmpty()) {
                     nextWave();
                     newWave(getWaveNumber());
                 }
 
                 if (player.getGridX() == x && player.getGridY() == y && !gameOverTriggered) {
-                    if (player.getShield() != 0) { player.lowerShield();}
-                    else {showExplosionKilledMessage();}
+                    if (player.getShield() != 0) { player.lowerShield(); }
+                    else { showExplosionKilledMessage(); }
                 }
             }
         }
@@ -391,98 +435,46 @@ public class GameMap {
         cleanup.play();
     }
 
+    /** ------------------ MÉTHODES UTILITAIRES ------------------ */
 
     public boolean isPaused() {
         return isPaused;
-    }
-
-    private void handleKeyPressed(KeyEvent event) {
-
-        // 🎮 Pause avec Ctrl + Espace
-        if (event.getCode() == KeyCode.SPACE && event.isControlDown()) {
-            if (isPaused) {
-                resumeGame();
-            } else {
-                pauseGame();
-                Platform.runLater(() -> {
-                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-                    alert.setTitle("Pause");
-                    alert.setHeaderText(null);
-                    alert.setContentText(" Le jeu est en pause.\nAppuyez sur Ctrl + Espace ou fermez cette boîte pour reprendre.");
-                    alert.showAndWait();  // Bloque jusqu'à fermeture
-                    resumeGame();         //  Reprend le jeu automatiquement après fermeture
-                });
-            }
-            return;
-        }
-
-
-        if (isPaused || gameOverTriggered) {
-            return; // Bloque les actions si en pause ou terminé
-        }
-
-        int newX = player.getGridX();
-        int newY = player.getGridY();
-
-        switch (event.getCode()) {
-            case Z, UP -> {
-                newY--;
-                player.setDirection("HAUT");
-            }
-            case S, DOWN -> {
-                newY++;
-                player.setDirection("BAS");
-            }
-            case Q, LEFT -> {
-                newX--;
-                player.setDirection("GAUCHE");
-            }
-            case D, RIGHT -> {
-                newX++;
-                player.setDirection("DROITE");
-            }
-            case SPACE -> {
-                placeBomb(player, player.getGridX(), player.getGridY());
-                return;
-            }
-            default -> {
-                return;
-            }
-
-        }
-
-        if (newX >= 0 && newX < MAP_WIDTH && newY >= 0 && newY < MAP_HEIGHT) {
-            char destination = MAP[newY].charAt(newX);
-            if (destination != '#' && destination != '*' && destination != 'B') {
-                for (Enemy enemy : enemies) {
-                    if (enemy.getGridX() == newX && enemy.getGridY() == newY) {
-                        if (player.getShield() != 0) { player.lowerShield();}
-                        else {gameOver();}
-                        return;
-                    }
-                }
-                player.moveToAnimated(newX, newY);
-                if (destination == 'C') {
-                    player.powerupCooldown();
-                }
-                else if (destination == 'R') {
-                    player.powerupRange();
-                }
-                else if (destination == 'S') {
-                    player.powerupShield();
-                }
-            }
-        }
     }
 
     public Player getPlayer() {
         return player;
     }
 
+    public void setGameTimer(Timeline gameTimer) {
+        this.gameTimer = gameTimer;
+    }
+
+    public void pauseGame() {
+        isPaused = true;
+        for (Enemy enemy : enemies) {
+            enemy.pauseMovement();
+        }
+        if (gameTimer != null) {
+            gameTimer.pause();
+        }
+    }
+
+    public void resumeGame() {
+        isPaused = false;
+        for (Enemy enemy : enemies) {
+            enemy.resumeMovement();
+        }
+        if (gameTimer != null) {
+            gameTimer.play();
+        }
+    }
+
+    /**
+     * Fin du jeu après contact avec un ennemi.
+     */
     public void gameOver() {
         if (gameOverTriggered) return;
         gameOverTriggered = true;
-
         System.out.println("Game Over!");
         gamePane.setOnKeyPressed(null);
 
@@ -498,6 +490,9 @@ public class GameMap {
         });
     }
 
+    /**
+     * Fin du jeu suite à une explosion.
+     */
     private void showExplosionKilledMessage() {
         if (gameOverTriggered) return;
         gameOverTriggered = true;
@@ -513,6 +508,5 @@ public class GameMap {
             Platform.exit();
         });
     }
-
 
 }
