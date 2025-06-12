@@ -184,4 +184,16 @@ public class Enemy extends ImageView {
     public void setKilled() {
         this.alive = false;
     }
+
+    public int getXGrid() {
+        return x;
+    }
+
+    public int getYGrid() {
+        return y;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
 }
