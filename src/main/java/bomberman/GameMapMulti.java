@@ -382,10 +382,13 @@ public class GameMapMulti {
                     MAP[y] = row.toString();
 
                     // Suppression visuelle de l'obstacle
-                    gamePane.getChildren().removeIf(node ->
-                            node instanceof ImageView &&
-                                    ((ImageView) node).getX() == x * TILE_SIZE &&
-                                    ((ImageView) node).getY() == y * TILE_SIZE);
+                    char currentTile = MAP[y].charAt(x);
+                    if (currentTile != 'C' && currentTile != 'S') {
+                        gamePane.getChildren().removeIf(node ->
+                                node instanceof ImageView &&
+                                        ((ImageView) node).getX() == x * TILE_SIZE &&
+                                        ((ImageView) node).getY() == y * TILE_SIZE);
+                    }
 
                     // Placement du sol à la place
                     ImageView floor = new ImageView(floorImage);
@@ -483,14 +486,28 @@ public class GameMapMulti {
                     }
                 }
                 player.moveToAnimated(newX, newY);
-                if (destination == 'C') {
-                    player.powerupCooldown();
-                    StringBuilder row = new StringBuilder(MAP[newY]);
-                    row.setCharAt(newX, ' ');
-                    MAP[newY] = row.toString();
-                }
-                else if (destination == 'S') {
-                    player.powerupShield();
+                if (destination == 'C' || destination == 'S') {
+                    if (destination == 'C') player.powerupCooldown();
+                    else player.powerupShield();
+
+                    // Supprimer l’image du power-up
+                    int finalNewX = newX;
+                    int finalNewY = newY;
+                    gamePane.getChildren().removeIf(node ->
+                            node instanceof ImageView &&
+                                    ((ImageView) node).getX() == finalNewX * TILE_SIZE &&
+                                    ((ImageView) node).getY() == finalNewY * TILE_SIZE);
+
+                    // Ajouter l’image du sol **en arrière-plan**
+                    Image floorImage = new Image(getClass().getResourceAsStream("/bomberman/images/floor.png"));
+                    ImageView floorView = new ImageView(floorImage);
+                    floorView.setFitWidth(TILE_SIZE);
+                    floorView.setFitHeight(TILE_SIZE);
+                    floorView.setX(newX * TILE_SIZE);
+                    floorView.setY(newY * TILE_SIZE);
+                    gamePane.getChildren().add(0, floorView);
+
+                    // Mettre à jour la MAP
                     StringBuilder row = new StringBuilder(MAP[newY]);
                     row.setCharAt(newX, ' ');
                     MAP[newY] = row.toString();
@@ -545,6 +562,10 @@ public class GameMapMulti {
             case RIGHT -> movePlayer(player2, 1, 0, "DROITE");
             case M -> placeBomb(player2, player2.getGridX(), player2.getGridY());
         }
+
+
+
+
     }
 
     /** ------------------ MÉTHODES DE FIN DE JEU ------------------ */

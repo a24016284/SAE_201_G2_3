@@ -306,18 +306,34 @@ public class GameMap {
                     }
                 }
                 player.moveToAnimated(newX, newY);
-                if (destination == 'C') {
-                    player.powerupCooldown();
+                if (destination == 'C' || destination == 'S') {
+                    if (destination == 'C') player.powerupCooldown();
+                    else player.powerupShield();
+
+                    // Supprimer l’image du power-up
+                    int finalNewX = newX;
+                    int finalNewY = newY;
+                    gamePane.getChildren().removeIf(node ->
+                            node instanceof ImageView &&
+                                    ((ImageView) node).getX() == finalNewX * TILE_SIZE &&
+                                    ((ImageView) node).getY() == finalNewY * TILE_SIZE);
+
+                    // Ajouter l’image du sol **en arrière-plan**
+                    Image floorImage = new Image(getClass().getResourceAsStream("/bomberman/images/floor.png"));
+                    ImageView floorView = new ImageView(floorImage);
+                    floorView.setFitWidth(TILE_SIZE);
+                    floorView.setFitHeight(TILE_SIZE);
+                    floorView.setX(newX * TILE_SIZE);
+                    floorView.setY(newY * TILE_SIZE);
+                    gamePane.getChildren().add(0, floorView);
+
+                    // Mettre à jour la MAP
                     StringBuilder row = new StringBuilder(MAP[newY]);
                     row.setCharAt(newX, ' ');
                     MAP[newY] = row.toString();
                 }
-                else if (destination == 'S') {
-                    player.powerupShield();
-                    StringBuilder row = new StringBuilder(MAP[newY]);
-                    row.setCharAt(newX, ' ');
-                    MAP[newY] = row.toString();
-                }
+
+
             }
         }
     }
@@ -390,10 +406,14 @@ public class GameMap {
                     }
                     MAP[y] = row.toString();
 
-                    gamePane.getChildren().removeIf(node ->
-                            node instanceof ImageView &&
-                                    ((ImageView) node).getX() == x * TILE_SIZE &&
-                                    ((ImageView) node).getY() == y * TILE_SIZE);
+                    char currentTile = MAP[y].charAt(x);
+                    if (currentTile != 'C' && currentTile != 'S') {
+                        gamePane.getChildren().removeIf(node ->
+                                node instanceof ImageView &&
+                                        ((ImageView) node).getX() == x * TILE_SIZE &&
+                                        ((ImageView) node).getY() == y * TILE_SIZE);
+                    }
+
 
                     ImageView floor = new ImageView(floorImage);
                     floor.setFitWidth(TILE_SIZE);
