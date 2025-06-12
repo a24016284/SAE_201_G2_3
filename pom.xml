@@ -54,6 +54,7 @@
                 <directory>src/main/resources</directory>
                 <includes>
                     <include>**/*</include>
+                    <include>**/*.mp3</include>
                 </includes>
             </resource>
         </resources>
