@@ -231,11 +231,12 @@ public class GameMapMulti {
             int x = random.nextInt(MAP[0].length());
 
             char tile = MAP[y].charAt(x);
-            boolean isPlayerClose = (x - 2 <= playerX && playerX <= x + 2 && y - 2 <= playerY && playerY <= y + 2);
+            boolean isPlayer1Close = (x - 2 <= playerX && playerX <= x + 2 && y - 2 <= playerY && playerY <= y + 2);
+            boolean isPlayer2Close = (x - 2 <= player2.getGridX() && player2.getGridX() <= x + 2 && y - 2 <= player2.getGridY() && player2.getGridY() <= y + 2);
             boolean isTileEmpty = (tile == ' ');
             boolean alreadyEnemy = enemies.stream().anyMatch(e -> e.getGridX() == x && e.getGridY() == y);
 
-            if (isTileEmpty && !isPlayerClose && !alreadyEnemy) {
+            if (isTileEmpty && !isPlayer1Close && !isPlayer2Close && !alreadyEnemy) {
                 Enemy enemy = new Enemy(x, y, enemyImage, this);
                 enemies.add(enemy);
                 gamePane.getChildren().add(enemy);
@@ -419,6 +420,8 @@ public class GameMapMulti {
                     if (enemy.getGridX() == x && enemy.getGridY() == y) {
                         gamePane.getChildren().remove(enemy);
                         enemiesToRemove.add(enemy);
+                        enemy.setKilled();
+                        enemy.pauseMovement();
 
                         // Attribution des points au joueur qui a posé la bombe
                         if (bombOwner == player) {

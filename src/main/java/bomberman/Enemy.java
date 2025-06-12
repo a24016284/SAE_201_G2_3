@@ -135,10 +135,19 @@ public class Enemy extends ImageView {
             int newY = y + dir[1];
 
             // Vérifie que la case est dans les limites et vide
-            if (newY >= 0 && newY < GameMap.MAP.length &&
-                    newX >= 0 && newX < GameMap.MAP[newY].length() &&
-                    GameMap.MAP[newY].charAt(newX) == ' ') {
-                validMoves.add(dir);
+            if (gameMode == GameMode.SOLO) {
+                if (newY >= 0 && newY < GameMap.MAP.length &&
+                        newX >= 0 && newX < GameMap.MAP[newY].length() &&
+                        GameMap.MAP[newY].charAt(newX) == ' ') {
+                    validMoves.add(dir);
+                }
+            }
+            else if (gameMode == GameMode.MULTI) {
+                if (newY >= 0 && newY < GameMapMulti.MAP.length &&
+                        newX >= 0 && newX < GameMapMulti.MAP[newY].length() &&
+                        GameMapMulti.MAP[newY].charAt(newX) == ' ') {
+                    validMoves.add(dir);
+                }
             }
         }
 
@@ -172,6 +181,14 @@ public class Enemy extends ImageView {
                 if (gameMapMulti.getPlayer().getShield() > 0) {
                     gameMapMulti.getPlayer().lowerShield();
                 } else {
+                    gameMapMulti.gameOver();
+                }
+            }
+            else if (x == gameMapMulti.getPlayer2().getGridX() && y == gameMapMulti.getPlayer2().getGridY()) {
+                if (gameMapMulti.getPlayer2().getShield() > 0) {
+                    gameMapMulti.getPlayer2().lowerShield();
+                }
+                else {
                     gameMapMulti.gameOver();
                 }
             }
