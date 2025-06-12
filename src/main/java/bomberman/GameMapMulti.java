@@ -571,6 +571,9 @@ public class GameMapMulti {
         if (gameOverTriggered) return;
         gameOverTriggered = true;
 
+        gamePane.getChildren().remove(player);
+        gamePane.getChildren().remove(player2);
+
         gamePane.setOnKeyPressed(null);
         //Main.playDeathMusic();
 
@@ -607,6 +610,8 @@ public class GameMapMulti {
         gameOverTriggered = true;
 
         String joueur = (killedPlayer == player) ? "Joueur 1" : "Joueur 2";
+        gamePane.getChildren().remove(player);
+        gamePane.getChildren().remove(player2);
         //Main.playDeathMusic();
 
         Platform.runLater(() -> {

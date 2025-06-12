@@ -507,6 +507,8 @@ public class GameMap {
         System.out.println("Game Over!");
         gamePane.setOnKeyPressed(null);
 
+        gamePane.getChildren().remove(player);
+
         //Main.playDeathMusic();
 
         Platform.runLater(() -> {
@@ -525,6 +527,8 @@ public class GameMap {
     private void showExplosionKilledMessage() {
         if (gameOverTriggered) return;
         gameOverTriggered = true;
+
+        gamePane.getChildren().remove(player);
 
         //Main.playDeathMusic();
 
