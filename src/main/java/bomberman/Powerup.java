@@ -34,14 +34,11 @@ public class Powerup extends ImageView {
         this.type = type;
 
         // Chargement des images pour chaque type de power-up
-        Image rangeImage = new Image(getClass().getResourceAsStream("/bomberman/images/powerup_bombe_range.png"));
         Image shieldImage  = new Image(getClass().getResourceAsStream("/bomberman/images/powerup_shield.png"));
         Image cooldownImage = new Image(getClass().getResourceAsStream("/bomberman/images/powerup_cooldown.png"));
 
         // Définir l'image du power-up en fonction de son type
-        if (Objects.equals(this.type, "range")) {
-            this.setImage(rangeImage);
-        } else if (Objects.equals(this.type, "shield")) {
+        if (Objects.equals(this.type, "shield")) {
             this.setImage(shieldImage);
         } else if (Objects.equals(this.type, "cooldown")) {
             this.setImage(cooldownImage);

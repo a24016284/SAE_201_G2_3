@@ -291,7 +291,7 @@ public class GameMap {
             case S, DOWN -> { newY++; player.setDirection("BAS"); }
             case Q, LEFT -> { newX--; player.setDirection("GAUCHE"); }
             case D, RIGHT -> { newX++; player.setDirection("DROITE"); }
-            case SPACE -> { placeBomb(player, player.getGridX(), player.getGridY()); return; }
+            case SPACE, M -> { placeBomb(player, player.getGridX(), player.getGridY()); return; }
             default -> { return; }
         }
 
@@ -300,15 +300,24 @@ public class GameMap {
             if (destination != '#' && destination != '*' && destination != 'B') {
                 for (Enemy enemy : enemies) {
                     if (enemy.getGridX() == newX && enemy.getGridY() == newY) {
-                        if (player.getShield() != 0) player.lowerShield();
-                        else gameOver();
+                        if (player.getShield() > 0) { player.lowerShield();}
+                        else {gameOver();}
                         return;
                     }
                 }
                 player.moveToAnimated(newX, newY);
-                if (destination == 'C') player.powerupCooldown();
-                else if (destination == 'R') player.powerupRange();
-                else if (destination == 'S') player.powerupShield();
+                if (destination == 'C') {
+                    player.powerupCooldown();
+                    StringBuilder row = new StringBuilder(MAP[newY]);
+                    row.setCharAt(newX, ' ');
+                    MAP[newY] = row.toString();
+                }
+                else if (destination == 'S') {
+                    player.powerupShield();
+                    StringBuilder row = new StringBuilder(MAP[newY]);
+                    row.setCharAt(newX, ' ');
+                    MAP[newY] = row.toString();
+                }
             }
         }
     }
@@ -316,10 +325,10 @@ public class GameMap {
     /**
      * Place une bombe à l'endroit du joueur si le cooldown est respecté.
      */
-    private void placeBomb(Player player, int x, int y) {
+    private void placeBomb(Player bombPlacer, int x, int y) {
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastBombTime < player.getBombCooldown()) {
-            System.out.println(" Attendez encore " + ((player.getBombCooldown() - (currentTime - lastBombTime)) / 1000.0) + " secondes !");
+        if (currentTime - lastBombTime < bombPlacer.getBombCooldown()) {
+            System.out.println(" Attendez encore " + ((bombPlacer.getBombCooldown() - (currentTime - lastBombTime)) / 1000.0) + " secondes !");
             return;
         }
 
@@ -424,7 +433,7 @@ public class GameMap {
                 }
 
                 if (player.getGridX() == x && player.getGridY() == y && !gameOverTriggered) {
-                    if (player.getShield() != 0) { player.lowerShield(); }
+                    if (player.getShield() > 0) { player.lowerShield(); }
                     else { showExplosionKilledMessage(); }
                 }
             }

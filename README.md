@@ -27,11 +27,12 @@ Notre jeu vous propose 4 personnages a incarner pendant votre partie. A vous de 
 
 # Contrôles
 ## Joueur 1
+(Mode Solo)
+* Déplacement : ZQSD et/ou Flèches
+* Poser une bombe : Espace et/ou M
+
 (Mode Multijoueur)
 * Déplacement : ZQSD 
-* Poser une bombe : Espace
-(Mode Solo)
-* Déplacement : Flèches 
 * Poser une bombe : Espace
 
 

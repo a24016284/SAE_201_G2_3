@@ -23,9 +23,6 @@ public class Player extends ImageView {
     /** Délai entre deux poses de bombes (en millisecondes). */
     private long bombCooldown = 1000;
 
-    /** Portée d'explosion de la bombe. */
-    private int range = 1;
-
     /** Nombre de boucliers du joueur. */
     private int shield = 0;
 
@@ -89,11 +86,6 @@ public class Player extends ImageView {
         return bombCooldown;
     }
 
-    /** @return La portée d'explosion actuelle. */
-    public int getRange() {
-        return range;
-    }
-
     /** @return Le nombre de boucliers actuels du joueur. */
     public int getShield() {
         return shield;
@@ -145,13 +137,6 @@ public class Player extends ImageView {
     public void powerupCooldown() {
         bombCooldown = bombCooldown / 2;
         System.out.println("Nouveau cooldown: " + bombCooldown);
-    }
-
-    /**
-     * Augmente la portée des explosions de bombe (power-up).
-     */
-    public void powerupRange() {
-        range += 1;
     }
 
     /**

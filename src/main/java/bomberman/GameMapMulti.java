@@ -4,6 +4,7 @@ import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -230,7 +231,7 @@ public class GameMapMulti {
             int x = random.nextInt(MAP[0].length());
 
             char tile = MAP[y].charAt(x);
-            boolean isPlayerClose = (x - 1 <= playerX && playerX <= x + 1 && y - 1 <= playerY && playerY <= y + 1);
+            boolean isPlayerClose = (x - 2 <= playerX && playerX <= x + 2 && y - 2 <= playerY && playerY <= y + 2);
             boolean isTileEmpty = (tile == ' ');
             boolean alreadyEnemy = enemies.stream().anyMatch(e -> e.getGridX() == x && e.getGridY() == y);
 
@@ -312,8 +313,8 @@ public class GameMapMulti {
      */
     private void placeBomb(Player bombPlacer, int x, int y) {
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastBombTime < BOMB_COOLDOWN) {
-            System.out.println(" Attendez encore " + ((BOMB_COOLDOWN - (currentTime - lastBombTime)) / 1000.0) + " secondes !");
+        if (currentTime - lastBombTime < bombPlacer.getBombCooldown()) {
+            System.out.println(" Attendez encore " + ((bombPlacer.getBombCooldown() - (currentTime - lastBombTime)) / 1000.0) + " secondes !");
             return;
         }
 
@@ -322,6 +323,9 @@ public class GameMapMulti {
         Bomb bomb = new Bomb(x, y);
         bombs.add(bomb);
         gamePane.getChildren().add(bomb);
+        StringBuilder row = new StringBuilder(MAP[y]);
+        row.setCharAt(x, 'B');
+        MAP[y] = row.toString();
 
         PauseTransition explosionDelay = new PauseTransition(Duration.seconds(2));
         explosionDelay.setOnFinished(e -> {
@@ -361,7 +365,20 @@ public class GameMapMulti {
                 // Destruction des obstacles
                 if (tile == '*') {
                     StringBuilder row = new StringBuilder(MAP[y]);
-                    row.setCharAt(x, ' ');
+                    int randomNumber = new Random().nextInt(20);
+                    if (randomNumber == 1){
+                        row.setCharAt(x, 'S');
+                        Powerup shield = new Powerup(x, y, "shield");
+                        gamePane.getChildren().add(shield);
+                    }
+                    else if (randomNumber == 2){
+                        row.setCharAt(x, 'C');
+                        Powerup cooldown = new Powerup(x, y, "cooldown");
+                        gamePane.getChildren().add(cooldown);
+                    }
+                    else{
+                        row.setCharAt(x, ' ');
+                    }
                     MAP[y] = row.toString();
 
                     // Suppression visuelle de l'obstacle
@@ -377,6 +394,11 @@ public class GameMapMulti {
                     floor.setX(x * TILE_SIZE);
                     floor.setY(y * TILE_SIZE);
                     gamePane.getChildren().add(0, floor);
+                }
+                if (tile == 'B') {
+                    StringBuilder row = new StringBuilder(MAP[y]);
+                    row.setCharAt(x, ' ');
+                    MAP[y] = row.toString();
                 }
 
                 // Effet visuel d'explosion
@@ -409,13 +431,16 @@ public class GameMapMulti {
 
                 // Vérification si un joueur est tué et attribution des points à l'adversaire
                 if (player.getGridX() == x && player.getGridY() == y) {
-                    if (bombOwner == player2) {
+                    if (player.getShield() > 0) { player.lowerShield(); }
+                    else if (bombOwner == player2) {
                         addPointsToPlayer2(PLAYER_KILL_POINTS);
                         System.out.println("Joueur 2 gagne " + PLAYER_KILL_POINTS + " points pour avoir tué le Joueur 1!");
                     }
                     showExplosionKilledMessage(player);
-                } else if (player2.getGridX() == x && player2.getGridY() == y) {
-                    if (bombOwner == player) {
+                }
+                else if (player2.getGridX() == x && player2.getGridY() == y) {
+                    if (player2.getShield() > 0) { player2.lowerShield(); }
+                    else if (bombOwner == player) {
                         addPointsToPlayer1(PLAYER_KILL_POINTS);
                         System.out.println("Joueur 1 gagne " + PLAYER_KILL_POINTS + " points pour avoir tué le Joueur 2!");
                     }
@@ -423,8 +448,6 @@ public class GameMapMulti {
                 }
             }
         }
-
-        // Nettoyage des effets visuels d'explosion après un délai
         PauseTransition cleanup = new PauseTransition(Duration.millis(300));
         cleanup.setOnFinished(e -> gamePane.getChildren().removeAll(explosionEffects));
         cleanup.play();
@@ -446,22 +469,32 @@ public class GameMapMulti {
 
         if (newX >= 0 && newX < MAP_WIDTH && newY >= 0 && newY < MAP_HEIGHT) {
             char destination = MAP[newY].charAt(newX);
-            if (destination != '#' && destination != '*') {
-                // Vérification des collisions avec les bombes
-                for (Bomb bomb : bombs) {
-                    if (bomb.getGridX() == newX && bomb.getGridY() == newY) return;
-                }
+            // Vérification des collisions avec les éléments de la carte
+            if (destination != '#' && destination != '*' && destination != 'B') {
                 // Vérification des collisions avec l'autre joueur
                 if ((player != player2) && player2.getGridX() == newX && player2.getGridY() == newY) return;
 
                 // Vérification des collisions avec les ennemis
                 for (Enemy enemy : enemies) {
                     if (enemy.getGridX() == newX && enemy.getGridY() == newY) {
-                        gameOver();
+                        if (player.getShield() > 0) { player.lowerShield();}
+                        else {gameOver();}
                         return;
                     }
                 }
                 player.moveToAnimated(newX, newY);
+                if (destination == 'C') {
+                    player.powerupCooldown();
+                    StringBuilder row = new StringBuilder(MAP[newY]);
+                    row.setCharAt(newX, ' ');
+                    MAP[newY] = row.toString();
+                }
+                else if (destination == 'S') {
+                    player.powerupShield();
+                    StringBuilder row = new StringBuilder(MAP[newY]);
+                    row.setCharAt(newX, ' ');
+                    MAP[newY] = row.toString();
+                }
             }
         }
     }
@@ -483,7 +516,7 @@ public class GameMapMulti {
             } else {
                 pauseGame();
                 Platform.runLater(() -> {
-                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Pause");
                     alert.setHeaderText(null);
                     alert.setContentText(" Le jeu est en pause.\nAppuyez sur Ctrl + Espace ou fermez cette boîte pour reprendre.");
@@ -528,7 +561,7 @@ public class GameMapMulti {
         //Main.playDeathMusic();
 
         Platform.runLater(() -> {
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Game Over");
             alert.setHeaderText(null);
 
@@ -551,37 +584,6 @@ public class GameMapMulti {
     }
 
     /**
-     * Termine le jeu suite à la mort d'un joueur par une bombe.
-     * Affiche les scores finaux et détermine le vainqueur.
-     */
-    private void showBombKilledMessage() {
-        if (gameOverTriggered) return;
-        gameOverTriggered = true;
-
-        Platform.runLater(() -> {
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-            alert.setTitle("Game Over");
-            alert.setHeaderText(null);
-
-            String winner = "";
-            if (player1Score > player2Score) {
-                winner = "Joueur 1 gagne avec " + player1Score + " points!";
-            } else if (player2Score > player1Score) {
-                winner = "Joueur 2 gagne avec " + player2Score + " points!";
-            } else {
-                winner = "Match nul avec " + player1Score + " points chacun!";
-            }
-
-            alert.setContentText("Vous avez été tué par une BOMBE !\n\nScore final:\n" +
-                    "Joueur 1: " + player1Score + " points\n" +
-                    "Joueur 2: " + player2Score + " points\n\n" +
-                    winner);
-            alert.showAndWait();
-            Platform.exit();
-        });
-    }
-
-    /**
      * Termine le jeu suite à la mort d'un joueur par une explosion.
      * Affiche les scores finaux et détermine le vainqueur.
      * @param killedPlayer le joueur qui a été tué
@@ -594,7 +596,7 @@ public class GameMapMulti {
         //Main.playDeathMusic();
 
         Platform.runLater(() -> {
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Game Over");
             alert.setHeaderText(null);
 

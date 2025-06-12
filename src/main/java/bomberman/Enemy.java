@@ -161,7 +161,7 @@ public class Enemy extends ImageView {
         // Vérifie la collision avec le joueur
         if (gameMode == GameMode.SOLO) {
             if (x == gameMap.getPlayer().getGridX() && y == gameMap.getPlayer().getGridY()) {
-                if (gameMap.getPlayer().getShield() != 0) {
+                if (gameMap.getPlayer().getShield() > 0) {
                     gameMap.getPlayer().lowerShield();
                 } else {
                     gameMap.gameOver();
@@ -169,7 +169,7 @@ public class Enemy extends ImageView {
             }
         } else if (gameMode == GameMode.MULTI) {
             if (x == gameMapMulti.getPlayer().getGridX() && y == gameMapMulti.getPlayer().getGridY()) {
-                if (gameMapMulti.getPlayer().getShield() != 0) {
+                if (gameMapMulti.getPlayer().getShield() > 0) {
                     gameMapMulti.getPlayer().lowerShield();
                 } else {
                     gameMapMulti.gameOver();
