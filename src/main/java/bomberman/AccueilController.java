@@ -49,6 +49,8 @@ public class AccueilController {
     // Labels pour afficher les scores en mode multijoueur
     private Label player1ScoreLabel;
     private Label player2ScoreLabel;
+    HBox player1Box;
+    HBox player2Box;
 
     // Choix des personnages sélectionnés par les joueurs
     public static String choixJoueur1;
@@ -241,7 +243,33 @@ public class AccueilController {
 
             // Score en mode multi
             if (modeMulti && controller instanceof GameMapMulti gameMultiController) {
-                setupMultiScoreUI(gameMultiController, topBar);
+                // Image joueur 1
+                ImageView player1Face = new ImageView(new Image(getClass().getResourceAsStream("/bomberman/images/player1_face.png")));
+                player1Face.setFitWidth(45);
+                player1Face.setFitHeight(45);
+
+                // Image joueur 2
+                ImageView player2Face = new ImageView(new Image(getClass().getResourceAsStream("/bomberman/images/player2_face.png")));
+                player2Face.setFitWidth(45);
+                player2Face.setFitHeight(45);
+
+                // Labels des scores
+                player1ScoreLabel = new Label("0");
+                player1ScoreLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;");
+
+                player2ScoreLabel = new Label("0");
+                player2ScoreLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;");
+
+                // Box gauche : score joueur 1
+                player1Box = new HBox(10, player1Face, player1ScoreLabel);
+                player1Box.setAlignment(Pos.CENTER_LEFT);
+
+                // Box droite : score joueur 2
+                player2Box = new HBox(10, player2ScoreLabel, player2Face);
+                player2Box.setAlignment(Pos.CENTER_RIGHT);
+
+                gameMultiController.setScoreLabels(player1ScoreLabel,player2ScoreLabel);
+
             }
 
             // Timer et vague (centré)
@@ -266,7 +294,7 @@ public class AccueilController {
                 HBox.setHgrow(timerBox, javafx.scene.layout.Priority.ALWAYS);
                 HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
             } else {
-                topBar.getChildren().addAll(player1ScoreLabel, timerBox, player2ScoreLabel);
+                topBar.getChildren().addAll(player1Box, timerBox, player2Box);
                 HBox.setHgrow(player1ScoreLabel, javafx.scene.layout.Priority.ALWAYS);
                 HBox.setHgrow(timerBox, javafx.scene.layout.Priority.ALWAYS);
                 HBox.setHgrow(player2ScoreLabel, javafx.scene.layout.Priority.ALWAYS);
@@ -306,31 +334,6 @@ public class AccueilController {
         }
     }
 
-    // Configure l'affichage des scores en mode multijoueur
-    private void setupMultiScoreUI(GameMapMulti controller, HBox topBar) {
-        ImageView player1Face = new ImageView(new Image(getClass().getResourceAsStream("/bomberman/images/player1_face.png")));
-        player1Face.setFitWidth(30);
-        player1Face.setFitHeight(30);
-
-        ImageView player2Face = new ImageView(new Image(getClass().getResourceAsStream("/bomberman/images/player2_face.png")));
-        player2Face.setFitWidth(30);
-        player2Face.setFitHeight(30);
-
-        player1ScoreLabel = new Label("0");
-        player1ScoreLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;");
-
-        player2ScoreLabel = new Label("0");
-        player2ScoreLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;");
-
-        HBox player1Box = new HBox(10, player1Face, player1ScoreLabel);
-        player1Box.setAlignment(Pos.CENTER_LEFT);
-
-        HBox player2Box = new HBox(10, player2ScoreLabel, player2Face);
-        player2Box.setAlignment(Pos.CENTER_RIGHT);
-
-        topBar.getChildren().addAll(player1Box, new VBox(), player2Box);
-        controller.setScoreLabels(player1ScoreLabel, player2ScoreLabel);
-    }
 
     // Affiche une alerte Game Over quand le temps est écoulé
     private void showGameOver() {
