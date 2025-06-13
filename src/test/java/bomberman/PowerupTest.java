@@ -9,8 +9,8 @@ public class PowerupTest {
 
     @Test
     public void testCoordonneesCorrectes() {
-        Powerup powerup = new Powerup(3, 7, "range");
-        assertEquals(3, powerup.getGridX());
+        Powerup powerup = new Powerup(2, 7, "shield");
+        assertEquals(2, powerup.getGridX());
         assertEquals(7, powerup.getGridY());
     }
 
